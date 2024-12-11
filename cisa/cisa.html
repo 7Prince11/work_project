@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent CISA Vulnerabilities</title>
+    <link rel="stylesheet" href="cisa.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Recent Exploited Vulnerabilities</h1>
+    </header>
+    <main>
+        <!-- Back button -->
+        <div class="back-button-container">
+            <a href="../index.html" class="back-button">← Back to Main Page</a>
+        </div>
+
+        <!-- Filter and Sort Container -->
+        <div class="filter-sort-container">
+            <div class="filter-container">
+                <label for="time-filter">Show:</label>
+                <select id="time-filter" class="filter-dropdown">
+                    <option value="week">Last Week</option>
+                    <option value="month">Last Month</option>
+                    <option value="three-months">Last 3 Months</option>
+                </select>
+            </div>
+            <div class="sort-container">
+                <label for="sort-dropdown">Sort By:</label>
+                <select id="sort-dropdown" class="filter-dropdown">
+                    <option value="default">Default</option>
+                    <option value="name">Name</option>
+                    <option value="date">Date</option>
+                    <option value="vendor">Vendor</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Vulnerability container -->
+        <div id="vulnerability-container" class="vulnerability-container">
+            Loading recent vulnerabilities...
+        </div>
+    </main>
+    <script src="cisa.js"></script>
+</body>
+
+</html>

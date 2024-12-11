@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Security Updates</title>
+    <link rel="stylesheet" href="microsoft.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Microsoft Security Updates</h1>
+    </header>
+
+    <main class="news-container">
+        <!-- Back button -->
+        <div class="back-button-container">
+            <a href="../index.html" class="back-button">← Back to Main Page</a>
+        </div>
+
+        <div class="header-filter-container">
+            <div id="header-information" class="header-information">
+                <h3 id="dynamic-title">Loading...</h3>
+                <p><strong>Initial Release Date:</strong> <span id="release-date">Loading...</span></p>
+            </div>
+            <div class="filter-container">
+                <label for="filter-dropdown" class="filter-label">Filter By:</label>
+                <select id="filter-dropdown" class="filter-dropdown">
+                    <option value="default">Default</option>
+                    <option value="name">Name</option>
+                    <option value="date">Date</option>
+                    <option value="exploitability">Exploitability</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Explanation Section -->
+        <div id="color-explanation" class="explanation">
+            <h4>Color Codes and Scores Explanation:</h4>
+            <ul>
+                <li><span class="color-box" style="background-color: #388e3c;"></span> <strong>Green:</strong> Low
+                    severity (Base Score < 4).</li>
+                <li><span class="color-box" style="background-color: #f9a825;"></span> <strong>Yellow:</strong> Medium
+                    severity (Base Score 4-6.9).</li>
+                <li><span class="color-box" style="background-color: #d32f2f;"></span> <strong>Red:</strong> High
+                    severity (Base Score ≥ 7).</li>
+                <li><span class="color-box" style="background-color: #90a4ae;"></span> <strong>Gray:</strong> Score
+                    unavailable (N/A).</li>
+            </ul>
+            <p><strong>Base Score:</strong> Represents the severity of the vulnerability on its own.<br><strong>Temporal
+                    Score:</strong> Adjusts the severity based on factors like exploitability and remediation.</p>
+        </div>
+
+        <!-- Vulnerability List -->
+        <div id="vulnerabilities-list" class="vulnerabilities-list"></div>
+    </main>
+
+    <script src="microsoft.js"></script>
+</body>
+
+</html>

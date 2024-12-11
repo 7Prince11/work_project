@@ -1,0 +1,137 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.header {
+  text-align: center;
+  background-color: #800000;
+  color: white;
+  padding: 20px 0;
+}
+
+/* Back button styling */
+.back-button-container {
+  margin: 20px;
+}
+
+.back-button {
+  text-decoration: none;
+  color: #800000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: inline-block;
+  padding: 10px 15px;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #800000;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Filter and Sort Container */
+.filter-sort-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.filter-container,
+.sort-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-dropdown {
+  padding: 5px;
+  font-size: 1rem;
+}
+
+/* Vulnerability container styling */
+.vulnerability-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vulnerability-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  padding: 15px;
+  width: 300px;
+}
+
+.vulnerability-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #800000;
+}
+
+.vulnerability-card p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+/* Dropdown Styling */
+.filter-dropdown {
+  padding: 10px;
+  font-size: 1rem;
+  color: #800000; /* Maroon color to match the theme */
+  border: 1px solid #800000; /* Border matches the header */
+  border-radius: 5px;
+  background-color: #ffffff; /* White background for clean look */
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(128, 0, 0, 0.5); /* Highlight effect */
+}
+
+.filter-dropdown:hover {
+  background-color: #f9f9f9; /* Light hover effect */
+  cursor: pointer;
+}
+
+/* Labels for dropdown */
+.filter-container label,
+.sort-container label {
+  font-weight: bold;
+  color: #800000; /* Matches the theme */
+  margin-right: 10px;
+  font-size: 1rem;
+}
+
+/* Align dropdown and label */
+.filter-container,
+.sort-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Filter and Sort Container */
+.filter-sort-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f4f4f4; /* Light background for contrast */
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}

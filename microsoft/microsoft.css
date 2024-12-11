@@ -1,0 +1,159 @@
+/* General styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4; /* Light background */
+  color: #333;
+}
+
+header.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #800000; /* Maroon color */
+  padding: 15px;
+}
+
+header h1 {
+  color: #ffffff;
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+/* Back button */
+.back-button-container {
+  margin: 20px;
+}
+
+.back-button {
+  text-decoration: none;
+  color: #800000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #800000;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Filter Section */
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin: 20px;
+}
+
+.filter-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #800000;
+  margin-right: 15px;
+}
+
+.filter-dropdown {
+  width: 200px;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Explanation Section */
+.explanation {
+  margin: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.explanation ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.explanation li {
+  margin: 10px 0;
+}
+
+.color-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border-radius: 3px;
+}
+
+/* Vulnerabilities List */
+.vulnerabilities-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.vulnerabilities-list div {
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #f4f4f4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vulnerabilities-list h4 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Header and Filter Container */
+.header-filter-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f4f4f4;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.header-information h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.header-information p {
+  margin: 5px 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #800000;
+}
+
+.filter-dropdown {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #fff;
+  color: #333;
+}
