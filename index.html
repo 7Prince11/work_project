@@ -15,27 +15,47 @@
     </header>
 
     <main class="news-container">
-        <a href="microsoft/microsoft.html" class="news-section-link">
-            <section id="microsoft-news" class="news-section">
-                <h2>Microsoft Security Updates</h2>
-                <div id="microsoft-content" class="news-content">
-                    <!-- Microsoft-specific news content will be added here dynamically -->
-                    <p>Click here to view Microsoft's latest security updates.</p>
-                </div>
-            </section>
-        </a>
+        <!-- Microsoft Section -->
+        <section id="microsoft-news" class="news-section">
+            <h2>Microsoft Security Updates</h2>
+            <div id="microsoft-content" class="news-content">
+                <!-- Microsoft updates will be added here dynamically -->
+                <p>Loading updates...</p>
+            </div>
+            <button id="microsoft-more" class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">View
+                More Microsoft Updates</button>
+        </section>
 
-        <a href="cisa/cisa.html" class="news-section-link">
-            <section id="cisa-news" class="news-section">
-                <h2>CISA Security Updates</h2>
-                <div id="cisa-content" class="news-content">
-                    <!-- CISA-specific news content will be added here dynamically -->
-                    <p>Click here to view CISA's latest security updates.</p>
-                </div>
-            </section>
-        </a>
+        <!-- CISA Section -->
+        <section id="cisa-news" class="news-section">
+            <h2>CISA Security Updates</h2>
+            <div id="cisa-content" class="news-content">
+                <!-- CISA updates will be added here dynamically -->
+                <p>Loading updates...</p>
+            </div>
+            <button id="cisa-more" class="view-more-button" onclick="redirectTo('cisa/cisa.html')">View More CISA
+                Updates</button>
+        </section>
+
+        <!-- Trending Topics Section -->
+        <section id="trending-news" class="news-section">
+            <h2>Trending Cybersecurity Topics</h2>
+            <div id="trending-content" class="news-content">
+                <!-- Trending topics will be added here dynamically -->
+                <p>Loading trending topics...</p>
+            </div>
+            <button id="trending-more" class="view-more-button" onclick="redirectTo('news/news.html')">View More
+                Trending Articles</button>
+        </section>
     </main>
 
+    <script src="script.js"></script>
+    <script>
+        // Function to redirect to the specified URL
+        const redirectTo = (url) => {
+            window.location.href = url;
+        };
+    </script>
 </body>
 
 </html>

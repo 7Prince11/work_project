@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity News</title>
+    <link rel="stylesheet" href="news.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Cybersecurity News</h1>
+    </header>
+    <main>
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <button id="back-button" onclick="goBack()">← Back to Main Page</button>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-container-left">
+                <label for="time-filter">Show News From:</label>
+                <select id="time-filter">
+                    <option value="week">Last Week</option>
+                    <option value="month">Last Month</option>
+                    <option value="three-months">Last 3 Months</option>
+                </select>
+            </div>
+            <div class="filter-container-right">
+                <label for="sort-dropdown">Sort By:</label>
+                <select id="sort-dropdown">
+                    <option value="date">Date</option>
+                    <option value="source">Source</option>
+                    <option value="title">Title</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Compare Button -->
+        <div class="compare-section">
+            <button id="compare-button">Analyze Trending Topics</button>
+        </div>
+
+        <!-- Section for Displaying Comparison Results -->
+        <div id="trending-topics" class="trending-topics">
+            <h3>Trending Topics</h3>
+            <p>Click "Analyze Trending Topics" to view the most talked-about topics.</p>
+        </div>
+
+        <!-- News Section -->
+        <div id="news-container" class="news-container">
+            Loading latest cybersecurity news...
+        </div>
+    </main>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    <script src="news.js" defer></script>
+</body>
+
+</html>

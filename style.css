@@ -43,11 +43,6 @@ h2 {
   gap: 20px;
 }
 
-.news-section-link {
-  text-decoration: none;
-  color: inherit;
-}
-
 .news-section {
   background-color: #ffffff;
   border: 1px solid #ddd;
@@ -55,16 +50,11 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  cursor: pointer;
 }
 
 .news-section:hover {
   transform: translateY(-5px); /* Lift effect */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.news-section h2 {
-  margin-top: 0;
 }
 
 .news-content {
@@ -73,8 +63,19 @@ h2 {
   color: #555;
 }
 
-.news-content p {
-  margin: 0;
+.view-more-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #800000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-more-button:hover {
+  background-color: #600000;
 }
 
 /* Responsive design */

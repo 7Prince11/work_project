@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Articles</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Trending Articles</h1>
+    </header>
+    <main>
+        <section class="upload-section">
+            <h2>Upload Headlines File</h2>
+            <input type="file" id="fileInput" accept=".txt">
+            <button id="analyzeButton" disabled>Analyze Headlines</button>
+        </section>
+        <section id="resultsSection" class="results-section hidden">
+            <h2>Trending Topics</h2>
+            <ul id="trendingList"></ul>
+            <h3>Articles Matching Top Topic</h3>
+            <ul id="matchingArticles"></ul>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+
+</html>

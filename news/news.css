@@ -1,0 +1,212 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.header {
+  text-align: center;
+  background-color: #800000;
+  color: white;
+  padding: 20px 0;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Spacing between label and select */
+}
+
+.filter-container label {
+  font-size: 1rem;
+  color: #333;
+  font-weight: bold;
+  margin: 0;
+}
+
+.filter-container select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  color: #800000;
+  background-color: #fff;
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-container select:hover,
+.filter-container select:focus {
+  border-color: #600000;
+  outline: none;
+  box-shadow: 0 0 5px rgba(128, 0, 0, 0.4);
+}
+
+/* News Container */
+.news-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.news-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  padding: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.news-card h3 {
+  font-size: 1.2rem;
+  color: #800000;
+  margin-bottom: 10px;
+}
+
+.news-card p {
+  font-size: 0.9rem;
+  margin: 5px 0;
+}
+
+.news-card a {
+  text-decoration: none;
+  color: #800000;
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+.compare-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+#compare-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #800000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#compare-button:hover {
+  background-color: #600000;
+}
+
+.trending-topics {
+  margin: 20px auto;
+  max-width: 800px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.trending-topics h3 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #800000;
+}
+
+.trending-topics p {
+  font-size: 1rem;
+  color: #333;
+}
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.show-article {
+  padding: 8px 12px;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #800000;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.show-article:hover {
+  background-color: #800000;
+  color: #fff;
+  border-color: #600000;
+}
+
+.back-button-container {
+  margin: 20px;
+}
+
+#back-button {
+  text-decoration: none;
+  color: #800000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: inline-block;
+  padding: 10px 15px;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+#back-button:hover {
+  background-color: #800000;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Filter Section Styling */
+
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 90%;
+}
+
+.filter-container-left,
+.filter-container-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-container label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #800000;
+}
+
+.filter-container select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #800000;
+  border-radius: 5px;
+  color: #800000;
+  background-color: #ffffff;
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-container select:hover,
+.filter-container select:focus {
+  border-color: #600000;
+  outline: none;
+  box-shadow: 0 0 5px rgba(128, 0, 0, 0.4);
+}
