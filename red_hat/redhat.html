@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Hat Vulnerabilities</title>
+    <link rel="stylesheet" href="redhat.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Red Hat Vulnerabilities</h1>
+    </header>
+
+    <!-- Back to Main Page Button -->
+    <div class="back-button-container">
+        <a href="../index.html" id="back-button">← Back to Main Page</a>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-container-left">
+            <label for="time-filter">Show Vulnerabilities From:</label>
+            <select id="time-filter">
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+                <option value="three-months">Last 3 Months</option>
+            </select>
+        </div>
+        <div class="filter-container-right">
+            <label for="sort-dropdown">Sort By:</label>
+            <select id="sort-dropdown">
+                <option value="date">Date</option>
+                <option value="impact">Impact</option>
+                <option value="advisory">Advisory</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Vulnerabilities Display Section -->
+    <div id="vulnerabilities-container" class="vulnerabilities-container">
+        <p>Loading Red Hat vulnerabilities...</p>
+    </div>
+
+    <script src="redhat.js" defer></script>
+</body>
+
+</html>

@@ -97,6 +97,44 @@ app.get("/api/updates", async (req, res) => {
   }
 });
 
+app.get("/api/redhat", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://access.redhat.com/hydra/rest/securitydata/cve.json"
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Failed to fetch Red Hat vulnerabilities:",
+        response.statusText
+      );
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch Red Hat vulnerabilities" });
+    }
+
+    const data = await response.json();
+
+    // Map and clean the data
+    const formattedVulnerabilities = data.map((vuln) => ({
+      id: vuln.CVE || "No ID Provided",
+      title: vuln.bugzilla?.description || "No details available",
+      severity: vuln.threat_severity || "Unknown",
+      publicDate: vuln.public_date || "No date provided",
+      affectedPackages:
+        vuln.package_state?.map((pkg) => pkg.package_name).join(", ") ||
+        "No affected packages",
+    }));
+
+    res.json(formattedVulnerabilities);
+  } catch (error) {
+    console.error("Error in /api/redhat route:", error.message);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch Red Hat vulnerabilities" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
