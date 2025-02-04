@@ -3,107 +3,124 @@ document.addEventListener("DOMContentLoaded", () => {
   const timeFilter = document.getElementById("time-filter");
   const sortDropdown = document.getElementById("sort-dropdown");
 
-  let vulnerabilities = []; // Store all vulnerabilities
-  let filteredVulnerabilities = []; // Store filtered vulnerabilities based on time
+  let vulnerabilities = [];
+  let filteredVulnerabilities = [];
 
-  // Helper function to calculate date differences
   const isWithinTimeRange = (vulnDate, days) => {
     const now = new Date();
-    return now - vulnDate <= days * 24 * 60 * 60 * 1000; // Difference in milliseconds
+    return now - vulnDate <= days * 86400000;
   };
 
-  // Fetch vulnerabilities from the API
   const fetchVulnerabilities = () => {
+    container.innerHTML = '<div class="loading-animation"></div>';
+
     fetch("http://localhost:3000/api/cisa")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         vulnerabilities = data.map((vuln) => ({
           ...vuln,
-          dateAdded: new Date(vuln.dateAdded), // Convert dateAdded to Date object
+          dateAdded: new Date(vuln.dateAdded),
         }));
-        applyFilters("week"); // Default time filter to last week
+        applyFilters("week");
       })
       .catch((error) => {
-        console.error("Error fetching vulnerabilities:", error);
-        container.innerHTML = "<p>Failed to load vulnerabilities.</p>";
+        container.innerHTML = `<div class="vulnerability-card">Error loading data: ${error.message}</div>`;
       });
   };
 
-  // Apply time filter and render
   const applyFilters = (timeRange) => {
-    const daysMapping = {
-      week: 7,
-      month: 30,
-      "three-months": 90,
-    };
-
-    const days = daysMapping[timeRange];
-    if (days !== undefined) {
-      filteredVulnerabilities = vulnerabilities.filter((vuln) =>
-        isWithinTimeRange(vuln.dateAdded, days)
-      );
-    } else {
-      filteredVulnerabilities = [...vulnerabilities]; // No filter, show all
-    }
-
-    renderVulnerabilities(filteredVulnerabilities); // Render filtered list
+    const daysMapping = { week: 7, month: 30, "three-months": 90 };
+    filteredVulnerabilities = vulnerabilities.filter((vuln) =>
+      daysMapping[timeRange]
+        ? isWithinTimeRange(vuln.dateAdded, daysMapping[timeRange])
+        : true
+    );
+    renderVulnerabilities(filteredVulnerabilities);
   };
 
-  // Render vulnerabilities to the container
   const renderVulnerabilities = (vulnList) => {
+    container.innerHTML = "";
+
     if (vulnList.length === 0) {
       container.innerHTML =
-        "<p>No vulnerabilities found for the selected range.</p>";
+        '<div class="vulnerability-card">No vulnerabilities found</div>';
       return;
     }
 
-    container.innerHTML = vulnList
-      .map((vuln) => {
-        return `
-          <div class="vulnerability-card">
-            <h3>${vuln.vulnerabilityName || vuln.cveID}</h3>
-            <p><strong>Vendor:</strong> ${vuln.vendorProject}</p>
-            <p><strong>Product:</strong> ${vuln.product}</p>
-            <p><strong>Date Added:</strong> ${vuln.dateAdded.toLocaleDateString()}</p>
-            <p><strong>Status:</strong> ${
-              vuln.knownRansomwareCampaignUse || "Unknown"
-            }</p>
-            <p><strong>Description:</strong> ${vuln.shortDescription}</p>
+    vulnList.forEach((vuln, index) => {
+      const card = document.createElement("div");
+      card.className = "vulnerability-card";
+      card.innerHTML = `
+        <h3>${vuln.vulnerabilityName || vuln.cveID}</h3>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
+            </svg>
+            <div>${vuln.vendorProject}</div>
           </div>
-        `;
-      })
-      .join("");
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <div>${vuln.product}</div>
+          </div>
+        </div>
+        <div class="status-badge ${
+          vuln.knownRansomwareCampaignUse ? "exploited" : "unknown"
+        }">
+          ${vuln.knownRansomwareCampaignUse || "Unknown"}
+        </div>
+        <div class="date-info">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
+            <path d="M16 2v4M8 2v4M3 14h18"/>
+          </svg>
+          ${vuln.dateAdded.toLocaleDateString()}
+        </div>
+        ${
+          vuln.shortDescription
+            ? `<p class="description">${vuln.shortDescription}</p>`
+            : ""
+        }
+      `;
+
+      container.appendChild(card);
+
+      // Animation with delay
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, index * 150);
+    });
   };
 
-  // Sort vulnerabilities
   const sortVulnerabilities = (criteria) => {
-    const sorted = [...filteredVulnerabilities]; // Sort only the filtered vulnerabilities
-    if (criteria === "name") {
-      sorted.sort((a, b) =>
-        (a.vulnerabilityName || "").localeCompare(b.vulnerabilityName || "")
-      );
-    } else if (criteria === "date") {
-      sorted.sort((a, b) => b.dateAdded - a.dateAdded); // Sort by date (most recent first)
-    } else if (criteria === "vendor") {
-      sorted.sort((a, b) =>
-        (a.vendorProject || "").localeCompare(b.vendorProject || "")
-      );
+    const sorted = [...filteredVulnerabilities];
+    switch (criteria) {
+      case "name":
+        sorted.sort((a, b) =>
+          (a.vulnerabilityName || "").localeCompare(b.vulnerabilityName || "")
+        );
+        break;
+      case "date":
+        sorted.sort((a, b) => b.dateAdded - a.dateAdded);
+        break;
+      case "vendor":
+        sorted.sort((a, b) =>
+          (a.vendorProject || "").localeCompare(b.vendorProject || "")
+        );
+        break;
     }
     renderVulnerabilities(sorted);
   };
 
-  // Event listeners for filters
+  // Event Listeners
   timeFilter.addEventListener("change", (e) => applyFilters(e.target.value));
   sortDropdown.addEventListener("change", (e) =>
     sortVulnerabilities(e.target.value)
   );
 
-  // Initialize data fetch and default view
+  // Initial Load
   fetchVulnerabilities();
 });

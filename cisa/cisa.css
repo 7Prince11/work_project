@@ -1,137 +1,241 @@
+/* Base Styles */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+  font-family: "Arial", sans-serif;
+  background-color: #f8f9fa;
+  color: #2d3748;
+  line-height: 1.6;
 }
 
+/* Header */
 .header {
-  text-align: center;
   background-color: #800000;
-  color: white;
-  padding: 20px 0;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-/* Back button styling */
+.header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #600000 0%, #2a5ea7 100%);
+}
+
+.header h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Back Button */
 .back-button-container {
-  margin: 20px;
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 100;
 }
 
 .back-button {
+  position: relative;
+  background-color: transparent;
+  color: white;
+  padding: 0.8rem 2rem 0.8rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
-  color: #800000;
-  font-size: 1.2rem;
-  font-weight: bold;
-  display: inline-block;
-  padding: 10px 15px;
-  border: 1px solid #800000;
-  border-radius: 5px;
-  background-color: #ffffff;
-  transition: all 0.3s ease;
+}
+
+.back-button::before {
+  content: "←";
+  transition: transform 0.3s ease;
 }
 
 .back-button:hover {
-  background-color: #800000;
-  color: #ffffff;
-  cursor: pointer;
+  background: white;
+  color: #800000;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding-right: 2.5rem;
+  padding-left: 2rem;
 }
 
-/* Filter and Sort Container */
-.filter-sort-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
+.back-button:hover::before {
+  transform: translateX(-5px);
 }
 
-.filter-container,
-.sort-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.back-button::after {
+  content: "";
+  position: absolute;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: all 0.3s ease;
 }
 
-.filter-dropdown {
-  padding: 5px;
-  font-size: 1rem;
+.back-button:hover::after {
+  opacity: 1;
+  right: 1.2rem;
 }
 
-/* Vulnerability container styling */
-.vulnerability-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
+/* Control Panel */
+.control-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20px, 2fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  background: white;
+  margin: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.control-dropdown {
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white no-repeat right 0.75rem center/10px 10px;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.control-dropdown:hover {
+  border-color: #800000;
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+/* Vulnerability Grid */
+.vulnerability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem 2rem;
 }
 
 .vulnerability-card {
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  padding: 15px;
-  width: 300px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.vulnerability-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .vulnerability-card h3 {
-  margin: 0 0 10px;
+  margin: 0 0 1rem;
   font-size: 1.2rem;
-  color: #800000;
+  color: #2d3748;
+  line-height: 1.4;
 }
 
-.vulnerability-card p {
-  margin: 5px 0;
-  font-size: 0.9rem;
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* Dropdown Styling */
-.filter-dropdown {
-  padding: 10px;
-  font-size: 1rem;
-  color: #800000; /* Maroon color to match the theme */
-  border: 1px solid #800000; /* Border matches the header */
-  border-radius: 5px;
-  background-color: #ffffff; /* White background for clean look */
-  transition: all 0.3s ease-in-out;
-}
-
-.filter-dropdown:focus {
-  outline: none;
-  box-shadow: 0 0 8px rgba(128, 0, 0, 0.5); /* Highlight effect */
-}
-
-.filter-dropdown:hover {
-  background-color: #f9f9f9; /* Light hover effect */
-  cursor: pointer;
-}
-
-/* Labels for dropdown */
-.filter-container label,
-.sort-container label {
-  font-weight: bold;
-  color: #800000; /* Matches the theme */
-  margin-right: 10px;
-  font-size: 1rem;
-}
-
-/* Align dropdown and label */
-.filter-container,
-.sort-container {
+.meta-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
-/* Filter and Sort Container */
-.filter-sort-container {
-  display: flex;
-  justify-content: space-between;
+.meta-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  display: inline-flex;
   align-items: center;
-  padding: 20px;
-  background-color: #f4f4f4; /* Light background for contrast */
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge.exploited {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.unknown {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.date-info {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Animations */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading-animation {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .control-panel {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .vulnerability-grid {
+    padding: 0 1rem 1rem;
+  }
 }

@@ -10,27 +10,27 @@
 
 <body>
     <header class="header">
+        <div class="back-button-container">
+            <a href="../index.html" class="back-button">Back to Main Page</a>
+        </div>
         <h1>Recent Exploited Vulnerabilities</h1>
     </header>
-    <main>
-        <!-- Back button -->
-        <div class="back-button-container">
-            <a href="../index.html" class="back-button">← Back to Main Page</a>
-        </div>
 
+    <main class="main-container">
         <!-- Filter and Sort Container -->
-        <div class="filter-sort-container">
-            <div class="filter-container">
-                <label for="time-filter">Show:</label>
-                <select id="time-filter" class="filter-dropdown">
+        <div class="control-panel">
+            <div class="filter-group">
+                <label for="time-filter" class="control-label">Time Range:</label>
+                <select id="time-filter" class="control-dropdown">
                     <option value="week">Last Week</option>
                     <option value="month">Last Month</option>
                     <option value="three-months">Last 3 Months</option>
                 </select>
             </div>
-            <div class="sort-container">
-                <label for="sort-dropdown">Sort By:</label>
-                <select id="sort-dropdown" class="filter-dropdown">
+
+            <div class="filter-group">
+                <label for="sort-dropdown" class="control-label">Sort By:</label>
+                <select id="sort-dropdown" class="control-dropdown">
                     <option value="default">Default</option>
                     <option value="name">Name</option>
                     <option value="date">Date</option>
@@ -40,8 +40,8 @@
         </div>
 
         <!-- Vulnerability container -->
-        <div id="vulnerability-container" class="vulnerability-container">
-            Loading recent vulnerabilities...
+        <div id="vulnerability-container" class="vulnerability-grid">
+            <div class="loading-animation"></div>
         </div>
     </main>
     <script src="cisa.js"></script>
