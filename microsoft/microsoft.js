@@ -13,31 +13,31 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((response) => response.json())
     .then((data) => {
       if (!data || data.message) {
-        vulnerabilitiesListDiv.innerHTML = `<p>${
+        vulnerabilitiesListDiv.innerHTML = `<p class="error">${
           data.message || "No data available."
         }</p>`;
         return;
       }
 
-      // Extract header information
-      const documentTitle = data["cvrf:DocumentTitle"] || "No Title Available";
+      // Header information
+      const documentTitle =
+        data["cvrf:DocumentTitle"] || "Microsoft Security Bulletin";
       const initialReleaseDate =
         data["cvrf:DocumentTracking"]?.["cvrf:InitialReleaseDate"] || "N/A";
 
-      // Update header dynamically
       headerInformationDiv.innerHTML = `
         <h3>${documentTitle}</h3>
-        <p><strong>Initial Release Date:</strong> ${
+        <p><strong>Initial Release:</strong> ${
           initialReleaseDate !== "N/A"
             ? new Date(initialReleaseDate).toLocaleDateString()
-            : "No Date Provided"
+            : "Not available"
         }</p>
       `;
 
-      // Extract vulnerabilities
+      // Process vulnerabilities
       const vulnerabilities = data["vuln:Vulnerability"] || [];
       vulnerabilitiesList = vulnerabilities
-        .filter((vuln) => vuln["vuln:Title"]) // Only include vulnerabilities with a title
+        .filter((vuln) => vuln["vuln:Title"])
         .map((vuln) => {
           let baseScore = "N/A";
           let temporalScore = "N/A";
@@ -45,60 +45,32 @@ document.addEventListener("DOMContentLoaded", () => {
           let revisionDate = "N/A";
 
           // Extract scores
-          if (
-            vuln["vuln:CVSSScoreSets"] &&
-            vuln["vuln:CVSSScoreSets"]["vuln:ScoreSet"]
-          ) {
-            const scoreSet = vuln["vuln:CVSSScoreSets"]["vuln:ScoreSet"];
-            if (Array.isArray(scoreSet)) {
-              for (const set of scoreSet) {
-                if (set["vuln:BaseScore"] && baseScore === "N/A") {
-                  baseScore = set["vuln:BaseScore"];
-                }
-                if (set["vuln:TemporalScore"] && temporalScore === "N/A") {
-                  temporalScore = set["vuln:TemporalScore"];
-                }
-                if (baseScore !== "N/A" && temporalScore !== "N/A") break;
-              }
-            } else {
-              if (scoreSet["vuln:BaseScore"]) {
-                baseScore = scoreSet["vuln:BaseScore"];
-              }
-              if (scoreSet["vuln:TemporalScore"]) {
-                temporalScore = scoreSet["vuln:TemporalScore"];
-              }
-            }
+          const scoreSet = vuln["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"];
+          if (scoreSet) {
+            const scores = Array.isArray(scoreSet) ? scoreSet[0] : scoreSet;
+            baseScore = scores["vuln:BaseScore"] || "N/A";
+            temporalScore = scores["vuln:TemporalScore"] || "N/A";
           }
 
           // Extract revision date
-          if (
-            vuln["vuln:RevisionHistory"] &&
-            vuln["vuln:RevisionHistory"]["vuln:Revision"]
-          ) {
-            const revision = vuln["vuln:RevisionHistory"]["vuln:Revision"];
-            if (Array.isArray(revision)) {
-              revisionDate = revision[0]["cvrf:Date"] || "N/A";
-            } else {
-              revisionDate = revision["cvrf:Date"] || "N/A";
-            }
+          const revision = vuln["vuln:RevisionHistory"]?.["vuln:Revision"];
+          if (revision) {
+            revisionDate = Array.isArray(revision)
+              ? revision[0]?.["cvrf:Date"]
+              : revision["cvrf:Date"] || "N/A";
           }
 
-          // Check for Exploited:Yes in vuln:Threats
-          if (vuln["vuln:Threats"] && vuln["vuln:Threats"]["vuln:Threat"]) {
-            const threats = vuln["vuln:Threats"]["vuln:Threat"];
-            if (Array.isArray(threats)) {
-              const exploitStatus = threats
-                .map((threat) => threat["vuln:Description"])
-                .find((desc) => desc?.includes("Exploited:Yes"));
-              if (exploitStatus) exploited = true;
-            }
-          }
+          // Check exploit status
+          const threats = vuln["vuln:Threats"]?.["vuln:Threat"] || [];
+          exploited = threats.some((threat) =>
+            threat["vuln:Description"]?.includes("Exploited:Yes")
+          );
 
           return {
             title: vuln["vuln:Title"],
-            baseScore: baseScore,
-            temporalScore: temporalScore,
-            exploited: exploited,
+            baseScore,
+            temporalScore,
+            exploited,
             date: revisionDate,
           };
         });
@@ -107,65 +79,104 @@ document.addEventListener("DOMContentLoaded", () => {
       renderVulnerabilities(vulnerabilitiesList);
     })
     .catch((error) => {
-      vulnerabilitiesListDiv.innerHTML = `<p>Failed to load updates: ${error.message}</p>`;
+      vulnerabilitiesListDiv.innerHTML = `
+        <div class="vulnerability-card severe">
+          <h4>Data Load Error</h4>
+          <p>${error.message}</p>
+        </div>
+      `;
     });
 
-  // Render vulnerabilities
+  // Render vulnerabilities with animations
   const renderVulnerabilities = (vulnerabilities) => {
-    vulnerabilitiesListDiv.innerHTML = vulnerabilities
-      .map((vuln) => {
-        let bgColor = "#90a4ae"; // Default gray for missing BaseScore
-        if (vuln.baseScore !== "N/A") {
-          const score = parseFloat(vuln.baseScore);
-          if (score < 4) {
-            bgColor = "#388e3c"; // Green for low severity
-          } else if (score < 7) {
-            bgColor = "#f9a825"; // Yellow for medium severity
-          } else {
-            bgColor = "#d32f2f"; // Red for high severity
-          }
-        }
+    vulnerabilitiesListDiv.innerHTML = "";
 
-        return `
-        <div style="
-          background-color: ${bgColor};
-          color: white;
-          padding: 15px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          margin: 10px 0;
-        ">
-          <h4>${vuln.title}</h4>
-          <p><strong>Base Score:</strong> ${vuln.baseScore}</p>
-          <p><strong>Temporal Score:</strong> ${vuln.temporalScore}</p>
-          <p><strong>Status:</strong> ${
-            vuln.exploited ? "Exploited" : "Not Exploited"
-          }</p>
-          <p><strong>Date:</strong> ${
+    vulnerabilities.forEach((vuln, index) => {
+      const card = document.createElement("div");
+      card.className = "vulnerability-card";
+
+      // Determine severity class
+      let severityClass = "neutral";
+      if (vuln.baseScore !== "N/A") {
+        const score = parseFloat(vuln.baseScore);
+        severityClass =
+          score >= 7
+            ? "severe"
+            : score >= 4
+            ? "high"
+            : score > 0
+            ? "medium"
+            : "neutral";
+      }
+      card.classList.add(severityClass);
+
+      card.innerHTML = `
+        <h4>${vuln.title}</h4>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
+              <path d="M12 15.57l-7-3.5V9l7 3.5 7-3.5v3.07l-7 3.5z"/>
+            </svg>
+            <div>
+              <div class="stat-label">Base Score</div>
+              <div class="stat-value">${vuln.baseScore}</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
+              <circle cx="12" cy="12" r="3.5"/>
+            </svg>
+            <div>
+              <div class="stat-label">Temporal Score</div>
+              <div class="stat-value">${vuln.temporalScore}</div>
+            </div>
+          </div>
+        </div>
+        <div class="status-badge ${vuln.exploited ? "exploited" : "safe"}">
+          ${vuln.exploited ? "⚠️ Actively Exploited" : "🛡️ Not Exploited"}
+        </div>
+        <div class="date-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
+            <path d="M16 2v4M8 2v4M3 14h18"/>
+          </svg>
+          ${
             vuln.date === "N/A"
-              ? "No Date Provided"
+              ? "No Date Available"
               : new Date(vuln.date).toLocaleDateString()
-          }</p>
-        </div>`;
-      })
-      .join("");
+          }
+        </div>
+      `;
+
+      vulnerabilitiesListDiv.appendChild(card);
+
+      // Animate card entry
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, index * 150);
+    });
   };
 
-  // Filter dropdown functionality
+  // Filter functionality
   filterDropdown.addEventListener("change", (event) => {
     const filterValue = event.target.value;
-    let sortedVulnerabilities = [...originalVulnerabilities];
+    let sorted = [...originalVulnerabilities];
 
-    if (filterValue === "name") {
-      sortedVulnerabilities.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (filterValue === "date") {
-      sortedVulnerabilities.sort((a, b) => new Date(a.date) - new Date(b.date));
-    } else if (filterValue === "exploitability") {
-      sortedVulnerabilities = sortedVulnerabilities.filter(
-        (vuln) => vuln.exploited
-      );
+    switch (filterValue) {
+      case "name":
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "date":
+        sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
+        break;
+      case "exploitability":
+        sorted = sorted.filter((vuln) => vuln.exploited);
+        break;
     }
 
-    renderVulnerabilities(sortedVulnerabilities);
+    renderVulnerabilities(sorted);
   });
 });
