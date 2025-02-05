@@ -97,21 +97,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Display results
   function displayResults({ topWords, headlines }) {
-    // Display top topics
     resultsSection.classList.remove("hidden");
-    trendingList.innerHTML = Object.entries(topWords)
-      .map(([word, count]) => `<li>${word} (${count} mentions)</li>`)
-      .join("");
 
-    // Find articles matching the most trending topic
+    // Clear previous results
+    trendingList.innerHTML = "";
+    matchingArticles.innerHTML = "";
+
+    // Display top topics with animations
+    Object.entries(topWords).forEach(([word, count], index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+            <span class="trending-word">${word}</span>
+            <span class="trending-count">${count} mentions</span>
+        `;
+      li.style.animationDelay = `${index * 100}ms`;
+      trendingList.appendChild(li);
+    });
+
+    // Find and display matching articles
     const topTopic = Object.keys(topWords)[0];
     const matchingHeadlines = headlines.filter((headline) =>
       headline.toLowerCase().includes(topTopic)
     );
 
-    // Display matching articles
-    matchingArticles.innerHTML = matchingHeadlines
-      .map((headline) => `<li>${headline}</li>`)
-      .join("");
+    matchingHeadlines.forEach((headline, index) => {
+      const li = document.createElement("li");
+      li.textContent = headline;
+      li.style.animationDelay = `${index * 50}ms`;
+      matchingArticles.appendChild(li);
+    });
   }
 });
