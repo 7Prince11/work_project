@@ -2,15 +2,15 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>University Cybersecurity News</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <header class="header">
-        <img src="images/cyber_news_nobg.png" alt="University Logo">
+        <img src="images/cyber_news_nobg.png" alt="University Logo" />
         <h1>University Cybersecurity News</h1>
     </header>
 
@@ -22,8 +22,9 @@
                 <!-- Microsoft updates will be added here dynamically -->
                 <p>Loading updates...</p>
             </div>
-            <button id="microsoft-more" class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">View
-                More Microsoft Updates</button>
+            <button id="microsoft-more" class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">
+                View More Microsoft Updates
+            </button>
         </section>
 
         <!-- CISA Section -->
@@ -33,8 +34,21 @@
                 <!-- CISA updates will be added here dynamically -->
                 <p>Loading updates...</p>
             </div>
-            <button id="cisa-more" class="view-more-button" onclick="redirectTo('cisa/cisa.html')">View More CISA
-                Updates</button>
+            <button id="cisa-more" class="view-more-button" onclick="redirectTo('cisa/cisa.html')">
+                View More CISA Updates
+            </button>
+        </section>
+
+        <!-- Red Hat Section (NEW) -->
+        <section id="redhat-news" class="news-section">
+            <h2>Red Hat Security Updates</h2>
+            <div id="redhat-content" class="news-content">
+                <!-- Red Hat updates will be added here dynamically -->
+                <p>Loading updates...</p>
+            </div>
+            <button id="redhat-more" class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">
+                View More Red Hat Updates
+            </button>
         </section>
 
         <!-- Trending Topics Section -->
@@ -44,8 +58,9 @@
                 <!-- Trending topics will be added here dynamically -->
                 <p>Loading trending topics...</p>
             </div>
-            <button id="trending-more" class="view-more-button" onclick="redirectTo('news/news.html')">View More
-                Trending Articles</button>
+            <button id="trending-more" class="view-more-button" onclick="redirectTo('news/news.html')">
+                View More Trending Articles
+            </button>
         </section>
     </main>
 

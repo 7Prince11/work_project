@@ -100,38 +100,57 @@ app.get("/api/updates", async (req, res) => {
 app.get("/api/redhat", async (req, res) => {
   try {
     const response = await fetch(
-      "https://access.redhat.com/hydra/rest/securitydata/cve.json"
+      "https://access.redhat.com/hydra/rest/securitydata/cve.json",
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+        },
+      }
     );
 
     if (!response.ok) {
-      console.error(
-        "Failed to fetch Red Hat vulnerabilities:",
-        response.statusText
-      );
-      return res
-        .status(500)
-        .json({ message: "Failed to fetch Red Hat vulnerabilities" });
+      console.error("Red Hat API Error:", response.status, response.statusText);
+      return res.status(502).json({
+        message: "Failed to fetch from Red Hat API",
+        status: response.status,
+      });
     }
 
     const data = await response.json();
 
-    // Map and clean the data
-    const formattedVulnerabilities = data.map((vuln) => ({
-      id: vuln.CVE || "No ID Provided",
-      title: vuln.bugzilla?.description || "No details available",
-      severity: vuln.threat_severity || "Unknown",
-      publicDate: vuln.public_date || "No date provided",
-      affectedPackages:
-        vuln.package_state?.map((pkg) => pkg.package_name).join(", ") ||
-        "No affected packages",
-    }));
+    // Map and filter data
+    const formattedVulnerabilities = data
+      .map((vuln) => ({
+        id: vuln.CVE || "No ID Provided",
+        title:
+          vuln.bugzilla_description ||
+          vuln.bugzilla?.description ||
+          "No details available",
+        severity: vuln.severity || vuln.threat_severity || "Unknown",
+        publicDate: vuln.public_date || "No date provided",
+        affectedPackages:
+          vuln.affected_packages && vuln.affected_packages.length > 0
+            ? vuln.affected_packages.join(", ")
+            : "No affected packages",
+        cvssScore: vuln.cvss3_score || "N/A",
+        advisory: vuln.advisories?.[0] || "No advisory available",
+      }))
+      // Filter out entries with missing critical information
+      .filter(
+        (vuln) =>
+          vuln.title !== "No details available" &&
+          vuln.affectedPackages !== "No affected packages" &&
+          vuln.severity !== "Unknown"
+      );
 
     res.json(formattedVulnerabilities);
   } catch (error) {
-    console.error("Error in /api/redhat route:", error.message);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch Red Hat vulnerabilities" });
+    console.error("Red Hat API Error:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 });
 
