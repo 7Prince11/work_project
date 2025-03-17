@@ -120,29 +120,22 @@ app.get("/api/redhat", async (req, res) => {
     const data = await response.json();
 
     // Map and filter data
-    const formattedVulnerabilities = data
-      .map((vuln) => ({
-        id: vuln.CVE || "No ID Provided",
-        title:
-          vuln.bugzilla_description ||
-          vuln.bugzilla?.description ||
-          "No details available",
-        severity: vuln.severity || vuln.threat_severity || "Unknown",
-        publicDate: vuln.public_date || "No date provided",
-        affectedPackages:
-          vuln.affected_packages && vuln.affected_packages.length > 0
-            ? vuln.affected_packages.join(", ")
-            : "No affected packages",
-        cvssScore: vuln.cvss3_score || "N/A",
-        advisory: vuln.advisories?.[0] || "No advisory available",
-      }))
-      // Filter out entries with missing critical information
-      .filter(
-        (vuln) =>
-          vuln.title !== "No details available" &&
-          vuln.affectedPackages !== "No affected packages" &&
-          vuln.severity !== "Unknown"
-      );
+    const formattedVulnerabilities = data.map((vuln) => ({
+      id: vuln.CVE || "No ID Provided",
+      title:
+        vuln.bugzilla_description ||
+        vuln.bugzilla?.description ||
+        "No details available",
+      severity: vuln.severity || vuln.threat_severity || "Unknown",
+      publicDate: vuln.public_date || "No date provided",
+      affectedPackages:
+        vuln.affected_packages && vuln.affected_packages.length > 0
+          ? vuln.affected_packages.join(", ")
+          : "No affected packages",
+      cvssScore: vuln.cvss3_score || "N/A",
+      advisory: vuln.advisories?.[0] || "No advisory available",
+    }));
+    // Filter out entries with missing critical information
 
     res.json(formattedVulnerabilities);
   } catch (error) {
