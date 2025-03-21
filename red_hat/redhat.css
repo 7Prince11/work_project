@@ -34,11 +34,7 @@ header h1 {
   letter-spacing: -0.5px;
 }
 
-/* Main Container */
-.news-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* Main Container: Wider like Microsoft */
 
 /* Filter Section */
 .header-filter-container {
@@ -50,10 +46,6 @@ header h1 {
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.header-information h3 {
-  margin: 0 0 0.3rem;
 }
 
 .filter-container {
@@ -76,7 +68,6 @@ header h1 {
     no-repeat right 0.75rem center/10px 10px;
   appearance: none;
   transition: all 0.25s ease;
-  cursor: pointer;
 }
 
 .filter-dropdown:hover {
@@ -85,9 +76,9 @@ header h1 {
 }
 
 /* Vulnerability Cards */
-.vulnerencies-container,
 .vulnerabilities-list {
   display: grid;
+  /* Creates responsive columns with each card at least 320px wide */
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   padding: 2rem;
@@ -114,17 +105,21 @@ header h1 {
   border-radius: 12px 12px 0 0;
 }
 
+/* Severity Colors */
 .vulnerability-card.severe::before {
   background: #dc3545; /* Red */
 }
 .vulnerability-card.high::before {
-  background: #ffc107; /* Yellow */
+  background: #ffc107; /* Yellow (like Microsoft) */
 }
 .vulnerability-card.medium::before {
   background: #28a745; /* Green */
 }
 .vulnerability-card.neutral::before {
   background: #6c757d; /* Gray */
+}
+.vulnerability-card.exploited::before {
+  background: #dc2626; /* Dark red for "exploited" if you use it */
 }
 
 .vulnerability-card h4 {
@@ -169,6 +164,7 @@ header h1 {
   color: #2d3748;
 }
 
+/* Status Badges */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -176,6 +172,7 @@ header h1 {
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 .status-badge.exploited {
@@ -188,6 +185,7 @@ header h1 {
   color: #16a34a;
 }
 
+/* Date Info */
 .date-info {
   margin-top: 1.2rem;
   font-size: 0.85rem;
@@ -301,6 +299,7 @@ header h1 {
   background: #90a4ae;
 }
 
+/* Additional Explanation/Score styles */
 .score-range {
   font-size: 0.85rem;
   color: #4a5568;

@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const headerInformationDiv = document.getElementById("header-information");
   const vulnerabilitiesListDiv = document.getElementById(
     "vulnerabilities-list"
   );
   const filterDropdown = document.getElementById("filter-dropdown");
   const lastFetchDateSpan = document.getElementById("last-fetch-date");
 
+  // NEW: search input reference
+  const searchInput = document.getElementById("search-input");
+
   let vulnerabilitiesList = [];
   let originalVulnerabilities = [];
 
-  // Fetch data from your Red Hat API endpoint
+  // Fetch data from Red Hat API endpoint
   fetch("http://localhost:3000/api/redhat")
     .then((response) => response.json())
     .then((data) => {
@@ -22,36 +24,30 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set "Last Fetch" date/time
       lastFetchDateSpan.textContent = new Date().toLocaleString();
 
-      // Format the vulnerabilities for display
-      // Each item is shaped like: { id, title, severity, publicDate, affectedPackages, cvssScore, advisory }
+      // Format vulnerabilities
       vulnerabilitiesList = data.map((vuln) => {
-        // Convert the CVSS score to float
         let baseScore = "N/A";
         if (vuln.cvssScore && vuln.cvssScore !== "N/A") {
           baseScore = parseFloat(vuln.cvssScore).toFixed(1);
         }
 
-        // Public date
-        let vulnDate = "N/A";
-        if (vuln.publicDate && vuln.publicDate !== "No date provided") {
-          vulnDate = vuln.publicDate;
-        }
+        // Decide "isExploited" logic
+        // e.g., if there's a non-default advisory, treat it as exploited
+        const isExploited = vuln.advisory !== "No advisory available";
 
         return {
           title: vuln.title,
           baseScore,
-          date: vulnDate, // for sorting by date
+          date: vuln.publicDate,
           severity: vuln.severity,
           id: vuln.id,
           advisory: vuln.advisory,
           affectedPackages: vuln.affectedPackages,
+          isExploited,
         };
       });
 
-      // Keep a copy of the original array for re-filtering
       originalVulnerabilities = [...vulnerabilitiesList];
-
-      // Render the list initially
       renderVulnerabilities(vulnerabilitiesList);
     })
     .catch((error) => {
@@ -63,7 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     });
 
-  // Renders the vulnerabilities into the DOM
+  // -------------------------------
+  // RENDER VULNERABILITIES FUNCTION
+  // -------------------------------
   function renderVulnerabilities(vulnerabilities) {
     vulnerabilitiesListDiv.innerHTML = "";
 
@@ -77,31 +75,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const score = parseFloat(vuln.baseScore);
         severityClass =
           score >= 7
-            ? "severe" // red
+            ? "severe"
             : score >= 4
-            ? "high" // yellow
+            ? "high"
             : score > 0
-            ? "medium" // green
+            ? "medium"
             : "neutral";
       }
 
-      // If baseScore is "N/A" but severity is "important" or "moderate," we can approximate
-      if (vuln.baseScore === "N/A") {
-        const sev = vuln.severity.toLowerCase();
-        if (sev.includes("important") || sev.includes("critical")) {
-          severityClass = "severe";
-        } else if (sev.includes("moderate") || sev.includes("medium")) {
-          severityClass = "high";
-        } else if (sev.includes("low")) {
-          severityClass = "medium";
-        }
+      // If isExploited, override to "exploited" style if you prefer
+      if (vuln.isExploited) {
+        severityClass = "exploited";
       }
-
       card.classList.add(severityClass);
+
+      // Status badge logic
+      let badgeClass = "safe";
+      let badgeText = "🛡️ Not Exploited";
+      if (vuln.isExploited) {
+        badgeClass = "exploited";
+        badgeText = "⚠️ Actively Exploited";
+      } else if (vuln.advisory !== "No advisory available") {
+        badgeClass = "has-advisory";
+        badgeText = `🔒 ${vuln.advisory}`;
+      }
 
       // Format date
       const displayDate =
-        vuln.date === "N/A"
+        vuln.date === "No date provided"
           ? "No Date Available"
           : new Date(vuln.date).toLocaleDateString();
 
@@ -113,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
             </svg>
             <div>
-              <div class="stat-label">Base Score</div>
+              <div class="stat-label">CVSS Score</div>
               <div class="stat-value">${vuln.baseScore}</div>
             </div>
           </div>
@@ -128,13 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         </div>
-        <div class="status-badge safe">
-          ${
-            vuln.advisory && vuln.advisory !== "No advisory available"
-              ? vuln.advisory
-              : "No Advisory"
-          }
-        </div>
+        <div class="status-badge ${badgeClass}">${badgeText}</div>
         <div class="date-info">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
@@ -158,37 +153,65 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Filter / Sort functionality
-  filterDropdown.addEventListener("change", (event) => {
-    const filterValue = event.target.value;
+  // -------------------------------------
+  // FILTER & SEARCH (COMBINED) FUNCTION
+  // -------------------------------------
+  function applyFilters() {
+    // 1) Start with original array
     let updatedList = [...originalVulnerabilities];
 
+    // 2) Apply search filter
+    const query = searchInput.value.toLowerCase().trim();
+    if (query) {
+      updatedList = updatedList.filter((vuln) => {
+        // Check multiple fields for a match
+        return (
+          vuln.title.toLowerCase().includes(query) ||
+          vuln.id.toLowerCase().includes(query) ||
+          vuln.severity.toLowerCase().includes(query) ||
+          vuln.advisory.toLowerCase().includes(query) ||
+          vuln.affectedPackages.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // 3) Apply sorting or exploit filtering
+    const filterValue = filterDropdown.value;
     switch (filterValue) {
       case "title":
         updatedList.sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "date":
         updatedList.sort((a, b) => {
-          // Convert date to actual number for comparison
           const dateA = new Date(a.date).getTime() || 0;
           const dateB = new Date(b.date).getTime() || 0;
-          return dateA - dateB;
+          return dateB - dateA; // descending by date
         });
         break;
       case "severity":
-        // Sort by numeric baseScore descending
         updatedList.sort((a, b) => {
           const scoreA = parseFloat(a.baseScore) || 0;
           const scoreB = parseFloat(b.baseScore) || 0;
-          return scoreB - scoreA;
+          return scoreB - scoreA; // descending by CVSS
         });
         break;
+      case "exploited":
+        updatedList = updatedList.filter((vuln) => vuln.isExploited);
+        break;
       default:
-        // "none" - do not sort, revert to original
-        updatedList = [...originalVulnerabilities];
+        // "none" - do nothing special
         break;
     }
 
+    // 4) Render results
     renderVulnerabilities(updatedList);
-  });
+  }
+
+  // -------------------------------------
+  // EVENT LISTENERS
+  // -------------------------------------
+  filterDropdown.addEventListener("change", applyFilters);
+
+  // NEW: "input" event for live searching
+  searchInput.addEventListener("input", applyFilters);
 });
