@@ -4,9 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const filterDropdown = document.getElementById("filter-dropdown");
   const lastFetchDateSpan = document.getElementById("last-fetch-date");
-
-  // NEW: search input reference
   const searchInput = document.getElementById("search-input");
+
+  // NEW: references to our view toggle buttons
+  const gridViewBtn = document.getElementById("grid-view-btn");
+  const listViewBtn = document.getElementById("list-view-btn");
+
+  const severityCollapsible = document.getElementById("severity-collapsible");
+  const severityToggle = document.getElementById("severity-toggle");
+  const severityArrow = document.getElementById("severity-arrow");
 
   let vulnerabilitiesList = [];
   let originalVulnerabilities = [];
@@ -31,8 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
           baseScore = parseFloat(vuln.cvssScore).toFixed(1);
         }
 
-        // Decide "isExploited" logic
-        // e.g., if there's a non-default advisory, treat it as exploited
         const isExploited = vuln.advisory !== "No advisory available";
 
         return {
@@ -59,9 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     });
 
-  // -------------------------------
-  // RENDER VULNERABILITIES FUNCTION
-  // -------------------------------
+  // Render Vulnerabilities
   function renderVulnerabilities(vulnerabilities) {
     vulnerabilitiesListDiv.innerHTML = "";
 
@@ -83,13 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
             : "neutral";
       }
 
-      // If isExploited, override to "exploited" style if you prefer
+      // If isExploited, override to "exploited"
       if (vuln.isExploited) {
         severityClass = "exploited";
       }
       card.classList.add(severityClass);
 
-      // Status badge logic
+      // Status badge
       let badgeClass = "safe";
       let badgeText = "🛡️ Not Exploited";
       if (vuln.isExploited) {
@@ -153,18 +155,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // -------------------------------------
-  // FILTER & SEARCH (COMBINED) FUNCTION
-  // -------------------------------------
+  // Combine Search & Filter
   function applyFilters() {
-    // 1) Start with original array
     let updatedList = [...originalVulnerabilities];
 
-    // 2) Apply search filter
+    // Searching
     const query = searchInput.value.toLowerCase().trim();
     if (query) {
       updatedList = updatedList.filter((vuln) => {
-        // Check multiple fields for a match
         return (
           vuln.title.toLowerCase().includes(query) ||
           vuln.id.toLowerCase().includes(query) ||
@@ -175,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 3) Apply sorting or exploit filtering
+    // Sorting / Exploit filtering
     const filterValue = filterDropdown.value;
     switch (filterValue) {
       case "title":
@@ -185,33 +183,48 @@ document.addEventListener("DOMContentLoaded", () => {
         updatedList.sort((a, b) => {
           const dateA = new Date(a.date).getTime() || 0;
           const dateB = new Date(b.date).getTime() || 0;
-          return dateB - dateA; // descending by date
+          return dateB - dateA; // descending
         });
         break;
       case "severity":
         updatedList.sort((a, b) => {
           const scoreA = parseFloat(a.baseScore) || 0;
           const scoreB = parseFloat(b.baseScore) || 0;
-          return scoreB - scoreA; // descending by CVSS
+          return scoreB - scoreA; // descending
         });
         break;
       case "exploited":
         updatedList = updatedList.filter((vuln) => vuln.isExploited);
         break;
       default:
-        // "none" - do nothing special
+        // none
         break;
     }
 
-    // 4) Render results
     renderVulnerabilities(updatedList);
   }
-
-  // -------------------------------------
-  // EVENT LISTENERS
-  // -------------------------------------
+  severityToggle.addEventListener("click", () => {
+    // If already expanded, collapse it
+    if (severityCollapsible.classList.contains("expanded")) {
+      severityCollapsible.classList.remove("expanded");
+      severityArrow.classList.remove("arrow-expanded");
+      severityArrow.classList.add("arrow-collapsed");
+    } else {
+      // If collapsed, expand it
+      severityCollapsible.classList.add("expanded");
+      severityArrow.classList.remove("arrow-collapsed");
+      severityArrow.classList.add("arrow-expanded");
+    }
+  });
+  // Event Listeners
   filterDropdown.addEventListener("change", applyFilters);
-
-  // NEW: "input" event for live searching
   searchInput.addEventListener("input", applyFilters);
+
+  // NEW: Toggle between Grid and List
+  gridViewBtn.addEventListener("click", () => {
+    vulnerabilitiesListDiv.classList.remove("list-view");
+  });
+  listViewBtn.addEventListener("click", () => {
+    vulnerabilitiesListDiv.classList.add("list-view");
+  });
 });

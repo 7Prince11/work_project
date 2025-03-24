@@ -34,8 +34,6 @@ header h1 {
   letter-spacing: -0.5px;
 }
 
-/* Main Container: Wider like Microsoft */
-
 /* Filter Section */
 .header-filter-container {
   display: flex;
@@ -75,15 +73,50 @@ header h1 {
   box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
 }
 
-/* Vulnerability Cards */
+/* VIEW SWITCHER */
+.view-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.view-btn {
+  background-color: #800000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-btn:hover {
+  background-color: #600000;
+}
+
+/* Vulnerabilities Grid Layout (default) */
 .vulnerabilities-list {
   display: grid;
-  /* Creates responsive columns with each card at least 320px wide */
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   padding: 2rem;
 }
 
+/* LIST LAYOUT: When .list-view is applied, items are stacked */
+.vulnerabilities-list.list-view {
+  display: block; /* or flex with flex-direction: column */
+}
+
+/* Make each vulnerability-card full width in list mode */
+.vulnerabilities-list.list-view .vulnerability-card {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* Card Styles */
 .vulnerability-card {
   position: relative;
   background: white;
@@ -110,7 +143,7 @@ header h1 {
   background: #dc3545; /* Red */
 }
 .vulnerability-card.high::before {
-  background: #ffc107; /* Yellow (like Microsoft) */
+  background: #ffc107; /* Yellow */
 }
 .vulnerability-card.medium::before {
   background: #28a745; /* Green */
@@ -349,7 +382,7 @@ header h1 {
 .back-button {
   position: relative;
   background-color: transparent;
-  color: white;
+  color: #fff;
   padding: 0.8rem 2rem 0.8rem 1.5rem;
   border: none;
   border-radius: 30px;
@@ -370,7 +403,7 @@ header h1 {
 }
 
 .back-button:hover {
-  background: white;
+  background: #fff;
   color: #800000;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   padding-right: 2.5rem;
@@ -397,4 +430,61 @@ header h1 {
 .back-button:hover::after {
   opacity: 1;
   right: 1.2rem;
+}
+/* Collapsible Container */
+/* Collapsible container (same as before) */
+.collapsible {
+  margin: 2rem;
+  padding: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Collapsible Header */
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  user-select: none; /* prevent text selection on click */
+}
+
+/* The Title */
+.collapsible-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* The Arrow */
+.arrow {
+  font-size: 1.2rem; /* slightly larger arrow text */
+  color: #2d3748; /* arrow color */
+  transition: transform 0.3s ease;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+/* Collapsible Content hidden by default */
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 2rem;
+}
+
+/* If .expanded is on the container, show the content */
+.collapsible.expanded .collapsible-content {
+  padding-bottom: 1.5rem;
+  max-height: 1000px; /* or some large value */
+}
+
+/* Additional styling for the arrow in expanded state */
+.arrow-expanded {
+  /* We'll just rotate the arrow or swap it for an up arrow via JS */
+  transform: rotate(0deg);
 }
