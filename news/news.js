@@ -4,10 +4,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortDropdown = document.getElementById("sort-dropdown");
   const trendingSection = document.getElementById("trending-topics");
 
-  let news = []; // Store all fetched news
-  let filteredNews = []; // Store news filtered by time range
+  // — Inject search input into control panel —
+  const controlPanel = document.querySelector(".control-panel");
+  const searchGroup = document.createElement("div");
+  searchGroup.className = "filter-group";
+  searchGroup.innerHTML = `
+    <label for="search-input" class="control-label">Search:</label>
+    <input type="text" id="search-input" class="control-dropdown" placeholder="Type to search titles...">
+  `;
+  controlPanel.appendChild(searchGroup);
+  const searchInput = document.getElementById("search-input");
 
-  // Stop words list
+  let news = []; // Все загруженные статьи
+  let filteredNews = []; // Отфильтрованные по времени
+
+  // Стоп–слова для биграмм
   const stopWords = new Set([
     "a",
     "an",
@@ -55,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "",
   ]);
 
-  // Fetch news from the API
+  // Загрузка новостей
   const fetchNews = () => {
     const apiKey = "aa46aa2754214ac295aa1e80213c829d";
     fetch(`https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${apiKey}`)
@@ -68,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             publishedAt: new Date(article.publishedAt),
             description: article.description,
             url: article.url,
-            image: article.urlToImage, // Add image URL
+            image: article.urlToImage,
           }));
           applyFilters("week");
         } else {
@@ -81,27 +92,24 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   };
 
-  // Filter news by time range
+  // Применить фильтр по времени
   const applyFilters = (timeRange) => {
-    const now = new Date();
+    const now = Date.now();
     const timeRanges = {
-      week: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      month: 30 * 24 * 60 * 60 * 1000, // 30 days
-      "three-months": 90 * 24 * 60 * 60 * 1000, // 90 days
+      week: 7 * 24 * 60 * 60 * 1000,
+      month: 30 * 24 * 60 * 60 * 1000,
+      "three-months": 90 * 24 * 60 * 60 * 1000,
     };
 
     const range = timeRanges[timeRange];
-    if (range) {
-      filteredNews = news.filter(
-        (article) => now - article.publishedAt <= range
-      );
-    } else {
-      filteredNews = [...news]; // Show all news
-    }
+    filteredNews = range
+      ? news.filter((article) => now - article.publishedAt.getTime() <= range)
+      : [...news];
+
     renderNews(filteredNews);
   };
 
-  // Render news to the page
+  // Отрисовка карточек новостей
   const renderNews = (newsList) => {
     if (newsList.length === 0) {
       newsContainer.innerHTML =
@@ -118,12 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ${
           article.image
             ? `
-        <div class="news-image-container">
-          <img src="${article.image}" 
-               alt="${article.title}" 
-               class="news-image"
-               onerror="this.style.display='none'">
-        </div>`
+          <div class="news-image-container">
+            <img src="${article.image}" alt="${article.title}"
+                 class="news-image" onerror="this.style.display='none'">
+          </div>`
             : ""
         }
         <h3>${article.title}</h3>
@@ -142,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
         <p>${article.description || "No description available."}</p>
-        <a href="${article.url}" target="_blank">
+        <a href="${article.url}" target="_blank" class="search-link">
           Read Full Article
           <svg class="external-icon" viewBox="0 0 24 24" width="14" height="14">
             <path d="M18 13v6c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h6l2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-5l-2-2z"/>
@@ -150,8 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </svg>
         </a>
       `;
-
-      // Animation
+      // Анимация появления
       setTimeout(() => {
         card.style.opacity = "1";
         card.style.transform = "translateY(0)";
@@ -162,117 +167,137 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Analyze Bigrams
+  // Поиск по заголовкам с подсветкой и улучшенным стилем ссылок
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.trim();
+    const lower = term.toLowerCase();
+    if (!lower) {
+      trendingSection.innerHTML = "";
+      return;
+    }
+
+    // Экранируем специальные символы для RegExp
+    const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${esc})`, "gi");
+
+    const matches = filteredNews.filter((a) =>
+      a.title.toLowerCase().includes(lower)
+    );
+
+    let html = `<h3>Search Results for “${term}”</h3>`;
+    if (lower.startsWith("cybersecurity")) {
+      html += `<p>Showing all cybersecurity articles. Try more specific keywords to narrow your search.</p>`;
+    }
+    html += `<p>${matches.length} article${
+      matches.length !== 1 ? "s" : ""
+    } found.</p>`;
+
+    if (matches.length) {
+      html += `<ul class="search-results">`;
+      matches.forEach((a) => {
+        // Подсветка вхождений
+        const highlighted = a.title.replace(regex, "<mark>$1</mark>");
+        html += `
+          <li>
+            <a
+              href="${a.url}"
+              target="_blank"
+              class="search-link"
+              style="color: var(--accent); text-decoration: none; font-weight: 600;"
+            >
+              ${highlighted}
+            </a>
+          </li>`;
+      });
+      html += `</ul>`;
+    } else {
+      html += `<p>No articles match your search.</p>`;
+    }
+
+    trendingSection.innerHTML = html;
+  });
+
+  // Анализ трендов (биграммы и кнопка Analyze по-прежнему работают)
   document.getElementById("compare-button").addEventListener("click", () => {
-    trendingSection.innerHTML = `
-  <h3>Trending Bigrams</h3>
-  <ul class="trending-list">
-    ${topBigrams
-      .map(
-        ([bigram, data]) => `
-      <li class="trending-item">
-        <div class="bigram-header">
-          <span class="bigram-text">${bigram}</span>
-          <span class="mention-count">${data.count} mentions</span>
-        </div>
-        <div class="button-group">
-          ${data.indexes
+    const headlines = filteredNews.map((a) => a.title);
+    const bigramCounts = {};
+    headlines.forEach((title, idx) => {
+      const words = title
+        .toLowerCase()
+        .split(/\s+/)
+        .map((w) => w.replace(/[^a-z0-9]/gi, ""))
+        .filter((w) => w && !stopWords.has(w));
+
+      for (let i = 0; i < words.length - 1; i++) {
+        const bigram = `${words[i]} ${words[i + 1]}`;
+        if (!bigramCounts[bigram]) {
+          bigramCounts[bigram] = { count: 1, indexes: [idx] };
+        } else {
+          bigramCounts[bigram].count++;
+          bigramCounts[bigram].indexes.push(idx);
+        }
+      }
+    });
+
+    const topBigrams = Object.entries(bigramCounts)
+      .filter(([_, d]) => d.count > 1)
+      .sort((a, b) => b[1].count - a[1].count);
+
+    let trendingHTML = "";
+    if (!topBigrams.length) {
+      trendingHTML = "<p>No common topics found.</p>";
+    } else {
+      trendingHTML = `
+        <h3>Trending Bigrams</h3>
+        <ul class="trending-list">
+          ${topBigrams
             .map(
-              (index) => `
-            <button class="show-article" data-index="${index}">
-              Article ${index + 1}
-            </button>
+              ([bigram, data]) => `
+            <li class="trending-item">
+              <div class="bigram-header">
+                <span class="bigram-text">${bigram}</span>
+                <span class="mention-count">${data.count} mentions</span>
+              </div>
+              <div class="button-group">
+                ${data.indexes
+                  .map(
+                    (i) => `
+                  <button class="show-article" data-index="${i}">
+                    Article ${i + 1}
+                  </button>
+                `
+                  )
+                  .join("")}
+              </div>
+            </li>
           `
             )
             .join("")}
-        </div>
-      </li>
-    `
-      )
-      .join("")}
-  </ul>
-`;
+        </ul>
+      `;
+    }
 
-    setTimeout(() => {
-      const headlines = filteredNews.map((article) => article.title);
-      const bigramCounts = {};
+    trendingSection.innerHTML = trendingHTML;
 
-      headlines.forEach((headline, index) => {
-        const words = headline
-          .toLowerCase()
-          .split(" ")
-          .map((word) => word.replace(/[^a-zA-Z0-9]/g, ""))
-          .filter((word) => word && !stopWords.has(word));
-
-        for (let i = 0; i < words.length - 1; i++) {
-          const bigram = `${words[i]} && ${words[i + 1]}`;
-          if (!bigramCounts[bigram]) {
-            bigramCounts[bigram] = { count: 1, indexes: [index] };
-          } else {
-            bigramCounts[bigram].count++;
-            bigramCounts[bigram].indexes.push(index);
-          }
+    document.querySelectorAll(".show-article").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const i = +e.currentTarget.dataset.index;
+        const card = document.querySelectorAll(".news-card")[i];
+        if (card) {
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.animate(
+            [
+              { backgroundColor: "rgba(255,236,179,0.5)" },
+              { backgroundColor: "white" },
+            ],
+            { duration: 3500, easing: "ease-out" }
+          );
         }
       });
-
-      const topBigrams = Object.entries(bigramCounts)
-        .filter(([_, data]) => data.count > 1) // Only keep bigrams with more than 1 mention
-        .sort((a, b) => b[1].count - a[1].count);
-
-      if (topBigrams.length === 0) {
-        trendingSection.innerHTML = "<p>No common topics found.</p>";
-      } else {
-        trendingSection.innerHTML = `
-          <h3>Trending Bigrams</h3>
-          <ul>
-            ${topBigrams
-              .map(
-                ([bigram, data]) => `
-                  <li>
-                    ${bigram} (${data.count} mentions)
-                    <div class="button-group">
-                      ${data.indexes
-                        .map(
-                          (index) => `
-                          <button class="show-article" data-index="${index}">Show Article</button>`
-                        )
-                        .join("")}
-                    </div>
-                  </li>
-              `
-              )
-              .join("")}
-          </ul>
-        `;
-
-        document.querySelectorAll(".show-article").forEach((button) => {
-          button.addEventListener("click", (e) => {
-            const index = e.target.dataset.index;
-            const targetCard = document.querySelectorAll(".news-card")[index];
-
-            if (targetCard) {
-              targetCard.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-              targetCard.animate(
-                [
-                  { backgroundColor: "rgba(255, 236, 179, 0.5)" },
-                  { backgroundColor: "white" },
-                ],
-                {
-                  duration: 1500,
-                  easing: "ease-out",
-                }
-              );
-            }
-          });
-        });
-      }
-    }, 1000);
+    });
   });
 
-  // Sort news
+  // Сортировка
   const sortNews = (criteria) => {
     const sorted = [...filteredNews];
     if (criteria === "date") {
@@ -288,5 +313,6 @@ document.addEventListener("DOMContentLoaded", () => {
   timeFilter.addEventListener("change", (e) => applyFilters(e.target.value));
   sortDropdown.addEventListener("change", (e) => sortNews(e.target.value));
 
+  // Стартуем!
   fetchNews();
 });
