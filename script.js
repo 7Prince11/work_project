@@ -1,229 +1,301 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const microsoftContent = document.getElementById("microsoft-content");
-  const cisaContent = document.getElementById("cisa-content");
-  const trendingSection = document.getElementById("trending-content");
-  const redhatContent = document.getElementById("redhat-content");
+  const mainContainer = document.getElementById("mainSections");
+  const customizeLink = document.getElementById("customize-link");
+  const scrollBtn = document.getElementById("scrollTopBtn");
+  const bottomToolbar = document.querySelector(".bottom-toolbar");
+  const iconBtns = document.querySelectorAll(".icon-btn");
+  const iconPopup = document.getElementById("iconPopup");
+  const popupContent = document.getElementById("popupContent");
+  const popupSave = document.getElementById("popupSave");
+  const popupCancel = document.getElementById("popupCancel");
 
-  // Helper function to get severity class based on numeric CVSS
+  let isEditing = false;
+  let originalOrder = [];
+  let dragSrcEl = null;
+
+  // Restore saved order
+  const saved = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
+  if (saved.length) {
+    saved.forEach((id) => {
+      const sec = document.getElementById(id);
+      if (sec) mainContainer.appendChild(sec);
+    });
+  }
+
+  // Helper: insert loader into a container
+  function setLoading(containerId) {
+    const c = document.getElementById(containerId);
+    c.innerHTML = `<div class="loader"><span></span><span></span><span></span></div>`;
+  }
+
+  // Shake & draggable toggles
+  function enterEditMode() {
+    document.body.classList.add("edit-mode");
+    Array.from(mainContainer.children).forEach((sec) => {
+      sec.setAttribute("draggable", true);
+      addDragHandlers(sec);
+    });
+  }
+  function exitEditMode() {
+    document.body.classList.remove("edit-mode");
+    Array.from(mainContainer.children).forEach((sec) => {
+      sec.removeAttribute("draggable");
+      removeDragHandlers(sec);
+    });
+  }
+
+  // Drag handlers
+  function handleDragStart(e) {
+    dragSrcEl = e.currentTarget;
+    e.currentTarget.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+  }
+  function handleDragOver(e) {
+    e.preventDefault();
+    const target = e.currentTarget;
+    if (target === dragSrcEl) return;
+    const rect = target.getBoundingClientRect();
+    const next = (e.clientY - rect.top) / rect.height > 0.5;
+    mainContainer.insertBefore(dragSrcEl, next ? target.nextSibling : target);
+  }
+  function handleDragEnd(e) {
+    e.currentTarget.classList.remove("dragging");
+  }
+  function addDragHandlers(elem) {
+    elem.addEventListener("dragstart", handleDragStart);
+    elem.addEventListener("dragover", handleDragOver);
+    elem.addEventListener("dragend", handleDragEnd);
+  }
+  function removeDragHandlers(elem) {
+    elem.removeEventListener("dragstart", handleDragStart);
+    elem.removeEventListener("dragover", handleDragOver);
+    elem.removeEventListener("dragend", handleDragEnd);
+  }
+
+  // Enter/exit edit mode via Customize link
+  customizeLink.addEventListener("click", () => {
+    if (!isEditing) {
+      originalOrder = Array.from(mainContainer.children).map((s) => s.id);
+      customizeLink.textContent = "Save";
+      // add Cancel
+      const cancelLi = document.createElement("li");
+      cancelLi.id = "cancelLi";
+      cancelLi.innerHTML = `<a href="#">Cancel</a>`;
+      cancelLi.onclick = () => {
+        // revert order
+        mainContainer.innerHTML = "";
+        originalOrder.forEach((id) =>
+          mainContainer.appendChild(document.getElementById(id))
+        );
+        exitEdit();
+      };
+      customizeLink.parentElement.after(cancelLi);
+
+      bottomToolbar.classList.remove("hidden");
+      enterEditMode();
+      isEditing = true;
+    } else {
+      const order = Array.from(mainContainer.children).map((s) => s.id);
+      localStorage.setItem("sectionOrder", JSON.stringify(order));
+      exitEdit();
+    }
+  });
+
+  function exitEdit() {
+    isEditing = false;
+    customizeLink.textContent = "Customize";
+    const cancelLi = document.getElementById("cancelLi");
+    if (cancelLi) cancelLi.remove();
+    bottomToolbar.classList.add("hidden");
+    exitEditMode();
+  }
+
+  // Scroll-to-top
+  window.addEventListener("scroll", () => {
+    scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
+  });
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Toolbar icons
+  iconBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      switch (action) {
+        case "reorder":
+          popupContent.innerHTML = "<p>Drag any section to reorder.</p>";
+          popupSave.textContent = "Got it";
+          break;
+        case "theme":
+          popupContent.innerHTML = "<p>Theming options coming soon…</p>";
+          popupSave.textContent = "OK";
+          break;
+        case "reset":
+          popupContent.innerHTML = "<p>Reset layout to default?</p>";
+          popupSave.textContent = "Reset";
+          break;
+      }
+      iconPopup.classList.remove("hidden");
+    });
+  });
+  popupSave.addEventListener("click", () => iconPopup.classList.add("hidden"));
+  popupCancel.addEventListener("click", () =>
+    iconPopup.classList.add("hidden")
+  );
+
+  /* ----------------------------------
+     Fetch logic with preload loaders
+  ---------------------------------- */
+
   const getSeverityClass = (score) => {
-    const numScore = parseFloat(score);
-    if (numScore >= 7) return "severe";
-    if (numScore >= 4) return "high";
-    if (numScore > 0) return "medium";
+    const n = parseFloat(score);
+    if (n >= 7) return "severe";
+    if (n >= 4) return "high";
+    if (n > 0) return "medium";
     return "neutral";
   };
 
-  // Microsoft Updates
-  const fetchMicrosoftUpdates = async () => {
+  async function fetchMicrosoftUpdates() {
+    setLoading("microsoft-content");
     try {
-      const response = await fetch("http://localhost:3000/api/updates");
-      const data = await response.json();
-
-      if (!data || data.message) {
-        microsoftContent.innerHTML = `<p class="error-msg">⚠️ Failed to load Microsoft updates</p>`;
-        return;
-      }
-
-      const sortedVulnerabilities = (data["vuln:Vulnerability"] || [])
-        .filter((vuln) => vuln["vuln:Title"])
-        .map((vuln) => ({
-          title: vuln["vuln:Title"],
+      const res = await fetch("http://localhost:3000/api/updates");
+      const data = await res.json();
+      const list = (data["vuln:Vulnerability"] || [])
+        .filter((v) => v["vuln:Title"])
+        .map((v) => ({
+          title: v["vuln:Title"],
           baseScore:
-            vuln["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"]?.[0]?.[
+            v["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"]?.[0]?.[
               "vuln:BaseScore"
             ] || "N/A",
-          status: vuln["vuln:Threats"]?.["vuln:Threat"]?.[0]?.[
-            "vuln:Description"
-          ]?.includes("Exploited:Yes")
+          status: (
+            v["vuln:Threats"]?.["vuln:Threat"]?.[0]?.["vuln:Description"] || ""
+          ).includes("Exploited:Yes")
             ? "Exploited"
             : "Not Exploited",
           date:
-            vuln["vuln:RevisionHistory"]?.["vuln:Revision"]?.[0]?.[
-              "cvrf:Date"
-            ] || "N/A",
+            v["vuln:RevisionHistory"]?.["vuln:Revision"]?.[0]?.["cvrf:Date"] ||
+            "N/A",
         }))
-        .sort(
-          (a, b) =>
-            new Date(b.date || "1970-01-01") - new Date(a.date || "1970-01-01")
-        )
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 3);
 
-      microsoftContent.innerHTML = sortedVulnerabilities
+      document.getElementById("microsoft-content").innerHTML = list
         .map(
-          (vuln) => `
-            <div class="news-card">
-              <div class="score-badge ${getSeverityClass(vuln.baseScore)}">
-                CVSS: ${vuln.baseScore}
-              </div>
-              <h4>${vuln.title}</h4>
-              <div class="meta-info">
-                <p>
-                  <span class="status-dot ${
-                    vuln.status === "Exploited" ? "exploited" : "safe"
-                  }"></span>
-                  ${vuln.status}
-                </p>
-                <p class="date-tag">📅 ${
-                  vuln.date === "N/A"
-                    ? "No Date"
-                    : new Date(vuln.date).toLocaleDateString()
-                }</p>
-              </div>
+          (v) => `
+          <div class="news-card">
+            <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
+            v.baseScore
+          }</div>
+            <h4>${v.title}</h4>
+            <div class="meta-info">
+              <span class="status-dot ${
+                v.status === "Exploited" ? "exploited" : "safe"
+              }"></span>${v.status}
+              <span>📅 ${
+                v.date === "N/A"
+                  ? "No Date"
+                  : new Date(v.date).toLocaleDateString()
+              }</span>
             </div>
-          `
+          </div>
+        `
         )
         .join("");
-    } catch (error) {
-      microsoftContent.innerHTML = `<p class="error-msg">⚠️ Error: ${error.message}</p>`;
+    } catch (e) {
+      // leave loader until user starts interacting
+      console.error(e);
     }
-  };
+  }
 
-  // CISA Updates
-  const fetchCisaUpdates = async () => {
+  async function fetchCisaUpdates() {
+    setLoading("cisa-content");
     try {
-      const response = await fetch("http://localhost:3000/api/cisa");
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        cisaContent.innerHTML = `<p class="error-msg">⚠️ Failed to load CISA updates</p>`;
-        return;
-      }
-
-      const sortedUpdates = data
-        .map((vuln) => ({
-          title: vuln.vulnerabilityName,
-          date: new Date(vuln.dateAdded),
+      const res = await fetch("http://localhost:3000/api/cisa");
+      const data = await res.json();
+      const list = data
+        .map((v) => ({
+          title: v.vulnerabilityName,
+          date: new Date(v.dateAdded),
         }))
         .sort((a, b) => b.date - a.date)
         .slice(0, 3);
 
-      cisaContent.innerHTML = sortedUpdates
+      document.getElementById("cisa-content").innerHTML = list
         .map(
-          (update) => `
-            <div class="news-card">
-              <h4>${update.title}</h4>
-              <div class="meta-info">
-                <p class="date-tag">📅 ${update.date.toLocaleDateString()}</p>
-              </div>
-            </div>
-          `
+          (u) => `
+          <div class="news-card">
+            <h4>${u.title}</h4>
+            <div class="meta-info">📅 ${u.date.toLocaleDateString()}</div>
+          </div>
+        `
         )
         .join("");
-    } catch (error) {
-      cisaContent.innerHTML = `<p class="error-msg">⚠️ Error: ${error.message}</p>`;
+    } catch (e) {
+      console.error(e);
     }
-  };
+  }
 
-  // Red Hat Updates (NEW)
-  const fetchRedHatUpdates = async () => {
+  async function fetchRedHatUpdates() {
+    setLoading("redhat-content");
     try {
-      const response = await fetch("http://localhost:3000/api/redhat");
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        redhatContent.innerHTML = `<p class="error-msg">⚠️ Failed to load Red Hat updates</p>`;
-        return;
-      }
-
-      // Show top 3 vulnerabilities
-      const topRedHat = data
-        .filter((v) => v.title && v.title !== "No details available")
-        .slice(0, 3)
-        .map((v) => ({
-          title: v.title,
-          baseScore: v.cvssScore === "N/A" ? "N/A" : v.cvssScore,
-          severity: v.severity || "Unknown",
-          date:
-            v.publicDate !== "No date provided" ? new Date(v.publicDate) : null,
-        }));
-
-      redhatContent.innerHTML = topRedHat
-        .map((vuln) => {
-          const dateDisplay = vuln.date
-            ? `📅 ${vuln.date.toLocaleDateString()}`
-            : "No Date";
-          return `
-            <div class="news-card">
-              <div class="score-badge ${getSeverityClass(vuln.baseScore)}">
-                CVSS: ${vuln.baseScore}
-              </div>
-              <h4>${vuln.title}</h4>
-              <div class="meta-info">
-                <p>${vuln.severity} Severity</p>
-                <p class="date-tag">${dateDisplay}</p>
-              </div>
+      const res = await fetch("http://localhost:3000/api/redhat");
+      const data = await res.json();
+      const list = data.filter((v) => v.title).slice(0, 3);
+      document.getElementById("redhat-content").innerHTML = list
+        .map(
+          (v) => `
+          <div class="news-card">
+            <h4>${v.title}</h4>
+            <div class="meta-info">
+              ${
+                v.publicDate !== "No date provided"
+                  ? new Date(v.publicDate).toLocaleDateString()
+                  : "No Date"
+              }
             </div>
-          `;
-        })
+          </div>
+        `
+        )
         .join("");
-    } catch (error) {
-      redhatContent.innerHTML = `<p class="error-msg">⚠️ Error: ${error.message}</p>`;
+    } catch (e) {
+      console.error(e);
     }
-  };
+  }
 
-  // Trending Articles
-  const fetchTrendingArticles = async () => {
+  async function fetchTrendingArticles() {
+    setLoading("trending-content");
     try {
-      // For demonstration, we assume your API key is valid
       const apiKey = "aa46aa2754214ac295aa1e80213c829d";
-      const response = await fetch(
+      const res = await fetch(
         `https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${apiKey}`
       );
-      const data = await response.json();
-
-      if (!data.articles) {
-        trendingSection.innerHTML = `<p class="error-msg">⚠️ Failed to load trending articles</p>`;
-        return;
-      }
-
-      const sortedArticles = data.articles
-        .filter((article) => article.publishedAt)
+      const data = await res.json();
+      const list = (data.articles || [])
         .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
         .slice(0, 3);
 
-      trendingSection.innerHTML = sortedArticles
-        .map((article) => {
-          const description =
-            article.description?.split(" ").slice(0, 12).join(" ") + "..." ||
-            "No description available";
-          return `
-            <div class="news-card">
-              <h4>${article.title}</h4>
-              ${
-                article.urlToImage
-                  ? `<div class="image-container">
-                      <img
-                        src="${article.urlToImage}"
-                        alt="${article.title}"
-                        class="article-image"
-                        loading="lazy"
-                      />
-                    </div>`
-                  : ""
-              }
-              <p class="article-excerpt">${description}</p>
-              <div class="meta-info">
-                <span class="source-badge">${article.source?.name || ""}</span>
-                <span class="date-tag">📅 ${new Date(
-                  article.publishedAt
-                ).toLocaleDateString()}</span>
-              </div>
-            </div>
-          `;
-        })
+      document.getElementById("trending-content").innerHTML = list
+        .map(
+          (a) => `
+          <div class="news-card">
+            <h4>${a.title}</h4>
+            <div class="meta-info">📅 ${new Date(
+              a.publishedAt
+            ).toLocaleDateString()}</div>
+          </div>
+        `
+        )
         .join("");
-    } catch (error) {
-      trendingSection.innerHTML = `<p class="error-msg">⚠️ Error: ${error.message}</p>`;
+    } catch (e) {
+      console.error(e);
     }
-  };
+  }
 
-  // Initialize all fetchers
-  const init = () => {
-    fetchMicrosoftUpdates();
-    fetchCisaUpdates();
-    fetchRedHatUpdates(); // <--- CALL OUR NEW FUNCTION
-    fetchTrendingArticles();
-  };
-
-  init();
+  // Kick off all fetches
+  fetchMicrosoftUpdates();
+  fetchCisaUpdates();
+  fetchRedHatUpdates();
+  fetchTrendingArticles();
 });

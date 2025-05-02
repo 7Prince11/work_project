@@ -12,68 +12,98 @@
       <path d='M50 18 L72 36 L68 70 L50 82 L32 70 L28 36 Z' fill='%23ffffff'/>
     </svg>" type="image/svg+xml" />
 
-
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <header class="header">
-        <img src="images/cyber_news_nobg.png" alt="University Logo" />
+        <img src="images/bsu_news.png" alt="BSU CyberNews Logo" />
         <h1>University Cybersecurity News</h1>
     </header>
 
-    <main class="news-container">
-        <!-- Microsoft Section -->
-        <section id="microsoft-news" class="news-section">
-            <h2>Microsoft Security Updates</h2>
-            <div id="microsoft-content" class="news-content">
-                <p>Loading updates...</p>
-            </div>
-            <button id="microsoft-more" class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">
-                View More Microsoft Updates
-            </button>
-        </section>
+    <div class="portal">
+        <nav class="portal-nav">
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#microsoft-news">Microsoft</a></li>
+                <li><a href="#cisa-news">CISA</a></li>
+                <li><a href="#redhat-news">Red Hat</a></li>
+                <li><a href="#trending-news">Trending</a></li>
+                <li><a id="customize-link" href="javascript:void(0)">Customize</a></li>
+            </ul>
+        </nav>
 
-        <!-- CISA Section -->
-        <section id="cisa-news" class="news-section">
-            <h2>CISA Security Updates</h2>
-            <div id="cisa-content" class="news-content">
-                <p>Loading updates...</p>
-            </div>
-            <button id="cisa-more" class="view-more-button" onclick="redirectTo('cisa/cisa.html')">
-                View More CISA Updates
-            </button>
-        </section>
+        <main class="news-container" id="mainSections">
+            <section id="about" class="news-section" draggable="false">
+                <h2>About</h2>
+                <p class="about-text">
+                    Welcome to BSU CyberNews — your hub for the latest cybersecurity updates impacting our campus and
+                    beyond. We curate official advisories from Microsoft, CISA, Red Hat, and emerging trends to keep
+                    students and staff informed about vulnerabilities, patches, and best practices.
+                </p>
+            </section>
 
-        <!-- Red Hat Section (NEW) -->
-        <section id="redhat-news" class="news-section">
-            <h2>Red Hat Security Updates</h2>
-            <div id="redhat-content" class="news-content">
-                <p>Loading updates...</p>
-            </div>
-            <button id="redhat-more" class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">
-                View More Red Hat Updates
-            </button>
-        </section>
+            <section id="microsoft-news" class="news-section">
+                <h2>Microsoft Security Updates</h2>
+                <div id="microsoft-content" class="news-content">
+                    <div class="loading-animation"></div>
+                </div>
+                <button class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">View More Microsoft
+                    Updates</button>
+            </section>
 
-        <!-- Trending Topics Section -->
-        <section id="trending-news" class="news-section">
-            <h2>Trending Cybersecurity Topics</h2>
-            <div id="trending-content" class="news-content">
-                <p>Loading trending topics...</p>
-            </div>
-            <button id="trending-more" class="view-more-button" onclick="redirectTo('news/news.html')">
-                View More Trending Articles
-            </button>
-        </section>
-    </main>
+            <section id="cisa-news" class="news-section">
+                <h2>CISA Security Updates</h2>
+                <div id="cisa-content" class="news-content">
+                    <div class="loading-animation"></div>
+                </div>
+                <button class="view-more-button" onclick="redirectTo('cisa/cisa.html')">View More CISA Updates</button>
+            </section>
+
+            <section id="redhat-news" class="news-section">
+                <h2>Red Hat Security Updates</h2>
+                <div id="redhat-content" class="news-content">
+                    <div class="loading-animation"></div>
+                </div>
+                <button class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">View More Red Hat
+                    Updates</button>
+            </section>
+
+            <section id="trending-news" class="news-section">
+                <h2>Trending Cybersecurity Topics</h2>
+                <div id="trending-content" class="news-content">
+                    <div class="loading-animation"></div>
+                </div>
+                <button class="view-more-button" onclick="redirectTo('news/news.html')">View More Trending
+                    Articles</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll-to-Top Button -->
+    <button id="scrollTopBtn" aria-label="Scroll to top">↑</button>
+
+    <!-- Bottom Toolbar (only shown in edit mode) -->
+    <div class="bottom-toolbar hidden">
+        <button class="icon-btn" data-action="reorder" title="Reorder Sections">↕️</button>
+        <button class="icon-btn" data-action="theme" title="Change Theme">🎨</button>
+        <button class="icon-btn" data-action="reset" title="Reset Layout">🔄</button>
+    </div>
+
+    <!-- Popup for toolbar actions (slides down from top) -->
+    <div id="iconPopup" class="icon-popup hidden">
+        <div id="popupContent"></div>
+        <div class="popup-actions">
+            <button id="popupSave" class="popup-btn save-btn">Save</button>
+            <button id="popupCancel" class="popup-btn cancel-btn">Cancel</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
     <script>
-        // Function to redirect to the specified URL
-        const redirectTo = (url) => {
+        function redirectTo(url) {
             window.location.href = url;
-        };
+        }
     </script>
 </body>
 
