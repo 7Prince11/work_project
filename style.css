@@ -32,13 +32,12 @@ header.header {
   align-items: center;
   background: var(--primary);
   border-bottom: 4px solid var(--primary-dark);
-  padding: 1.5rem 2rem;
-  text-align: center;
+  padding: 2rem;
 }
 header.header img {
   position: absolute;
   left: 2rem;
-  height: 100px;
+  height: 110px;
   animation: pulse 4s ease-in-out infinite;
 }
 @keyframes pulse {
@@ -103,33 +102,45 @@ header.header h1 {
   background: var(--light-bg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+  margin: 2rem 0;
   padding: 1.5rem;
   position: relative;
   transition: transform 0.3s ease;
 }
+
+/* Subtle shake in edit-mode */
 .news-section.editing {
-  animation: shake 0.5s infinite;
+  animation: shake 0.8s infinite;
   cursor: grab;
+  z-index: 100;
 }
 @keyframes shake {
   0% {
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-5px);
+    transform: translateX(-1px);
   }
   50% {
-    transform: translateX(5px);
+    transform: translateX(1px);
   }
   75% {
-    transform: translateX(-5px);
+    transform: translateX(-1px);
   }
   100% {
     transform: translateX(0);
   }
 }
+
+/* Highlight while dragging */
+.news-section.dragging {
+  opacity: 1 !important;
+  background-color: white !important;
+  outline: 2px dashed var(--primary);
+  transform: scale(1.01);
+}
+
+/* Section titles */
 .news-section h2 {
   font-size: 1.5rem;
   color: var(--primary);
@@ -159,7 +170,7 @@ header.header h1 {
   line-height: 1.5;
 }
 
-/* Grid */
+/* Grid of cards */
 .news-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -167,7 +178,7 @@ header.header h1 {
   margin-top: 1rem;
 }
 
-/* Spinner */
+/* Old spinner (fallback) */
 .loading-animation {
   width: 40px;
   height: 40px;
@@ -183,6 +194,41 @@ header.header h1 {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+/* Three-dot loader for JS preloading */
+.loader {
+  display: inline-block;
+  padding: 1rem;
+}
+.loader span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin: 0 4px;
+  opacity: 0;
+  animation: dot 1.4s infinite ease-in-out both;
+}
+.loader span:nth-child(1) {
+  animation-delay: 0;
+}
+.loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
   }
 }
 
@@ -249,7 +295,7 @@ header.header h1 {
   color: white;
 }
 
-/* View More */
+/* View More button */
 .view-more-button {
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
@@ -274,7 +320,7 @@ header.header h1 {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: #888;
+  background: var(--primary-dark);
   color: white;
   border: none;
   border-radius: 50%;
@@ -284,7 +330,7 @@ header.header h1 {
   z-index: 1000;
 }
 #scrollTopBtn:hover {
-  background: #666;
+  background: var(--primary);
 }
 
 /* Bottom Toolbar */
@@ -315,7 +361,7 @@ header.header h1 {
   transform: scale(1.2);
 }
 
-/* Icon Popup from top */
+/* Icon Popup */
 .icon-popup {
   position: fixed;
   top: 80px;
@@ -359,20 +405,6 @@ header.header h1 {
 .cancel-btn {
   background: #ccc;
   color: var(--text);
-}
-
-/* Section Controls */
-.section-controls {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
-.section-controls button {
-  background: transparent;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  color: var(--primary);
 }
 
 /* Responsive */

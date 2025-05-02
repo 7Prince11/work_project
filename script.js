@@ -1,3 +1,5 @@
+// script.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const mainContainer = document.getElementById("mainSections");
   const customizeLink = document.getElementById("customize-link");
@@ -9,108 +11,135 @@ document.addEventListener("DOMContentLoaded", () => {
   const popupSave = document.getElementById("popupSave");
   const popupCancel = document.getElementById("popupCancel");
 
-  let isEditing = false;
+  let customizingMode = false; // whether user has clicked “Customize”
+  let draggingMode = false; // whether sections are draggable/shaking
   let originalOrder = [];
   let dragSrcEl = null;
 
-  // Restore saved order
-  const saved = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
-  if (saved.length) {
-    saved.forEach((id) => {
+  // Restore saved section order
+  const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
+  if (savedOrder.length) {
+    savedOrder.forEach((id) => {
       const sec = document.getElementById(id);
       if (sec) mainContainer.appendChild(sec);
     });
   }
 
-  // Helper: insert loader into a container
-  function setLoading(containerId) {
-    const c = document.getElementById(containerId);
-    c.innerHTML = `<div class="loader"><span></span><span></span><span></span></div>`;
+  // Preloader helper
+  function setLoading(id) {
+    document.getElementById(id).innerHTML =
+      '<div class="loader"><span></span><span></span><span></span></div>';
   }
 
-  // Shake & draggable toggles
-  function enterEditMode() {
+  // Enter drag mode: make sections draggable + shaking
+  function enterDragMode() {
+    draggingMode = true;
     document.body.classList.add("edit-mode");
     Array.from(mainContainer.children).forEach((sec) => {
       sec.setAttribute("draggable", true);
+      sec.classList.add("editing");
       addDragHandlers(sec);
     });
   }
-  function exitEditMode() {
+
+  // Exit drag mode: disable dragging + stop shaking
+  function exitDragMode() {
+    draggingMode = false;
     document.body.classList.remove("edit-mode");
     Array.from(mainContainer.children).forEach((sec) => {
       sec.removeAttribute("draggable");
+      sec.classList.remove("editing");
       removeDragHandlers(sec);
+      sec.classList.remove("dragging", "over");
     });
   }
 
-  // Drag handlers
+  // Toggle customizing mode on/off
+  function enterCustomizeMode() {
+    customizingMode = true;
+    originalOrder = Array.from(mainContainer.children).map((sec) => sec.id);
+    customizeLink.textContent = "Save";
+    // Insert Cancel link
+    const cancelLi = document.createElement("li");
+    cancelLi.id = "cancelLi";
+    cancelLi.innerHTML = `<a href="#">Cancel</a>`;
+    cancelLi.addEventListener("click", (event) => {
+      event.preventDefault();
+      revertOrder();
+      exitCustomizeMode();
+    });
+    customizeLink.parentElement.after(cancelLi);
+    bottomToolbar.classList.remove("hidden");
+  }
+
+  function exitCustomizeMode() {
+    customizingMode = false;
+    customizeLink.textContent = "Customize";
+    document.getElementById("cancelLi")?.remove();
+    bottomToolbar.classList.add("hidden");
+    exitDragMode();
+  }
+
+  function revertOrder() {
+    mainContainer.innerHTML = "";
+    originalOrder.forEach((id) => {
+      const sec = document.getElementById(id);
+      if (sec) mainContainer.appendChild(sec);
+    });
+  }
+
+  // Drag event handlers
   function handleDragStart(e) {
-    dragSrcEl = e.currentTarget;
-    e.currentTarget.classList.add("dragging");
+    dragSrcEl = this;
+    this.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
   }
   function handleDragOver(e) {
     e.preventDefault();
-    const target = e.currentTarget;
+    const target = this;
     if (target === dragSrcEl) return;
     const rect = target.getBoundingClientRect();
-    const next = (e.clientY - rect.top) / rect.height > 0.5;
-    mainContainer.insertBefore(dragSrcEl, next ? target.nextSibling : target);
+    const after = (e.clientY - rect.top) / rect.height > 0.5;
+    mainContainer.insertBefore(dragSrcEl, after ? target.nextSibling : target);
+    target.classList.add("over");
   }
-  function handleDragEnd(e) {
-    e.currentTarget.classList.remove("dragging");
+  function handleDragLeave() {
+    this.classList.remove("over");
   }
-  function addDragHandlers(elem) {
-    elem.addEventListener("dragstart", handleDragStart);
-    elem.addEventListener("dragover", handleDragOver);
-    elem.addEventListener("dragend", handleDragEnd);
-  }
-  function removeDragHandlers(elem) {
-    elem.removeEventListener("dragstart", handleDragStart);
-    elem.removeEventListener("dragover", handleDragOver);
-    elem.removeEventListener("dragend", handleDragEnd);
+  function handleDragEnd() {
+    this.classList.remove("dragging");
+    Array.from(mainContainer.children).forEach((sec) =>
+      sec.classList.remove("over")
+    );
   }
 
-  // Enter/exit edit mode via Customize link
-  customizeLink.addEventListener("click", () => {
-    if (!isEditing) {
-      originalOrder = Array.from(mainContainer.children).map((s) => s.id);
-      customizeLink.textContent = "Save";
-      // add Cancel
-      const cancelLi = document.createElement("li");
-      cancelLi.id = "cancelLi";
-      cancelLi.innerHTML = `<a href="#">Cancel</a>`;
-      cancelLi.onclick = () => {
-        // revert order
-        mainContainer.innerHTML = "";
-        originalOrder.forEach((id) =>
-          mainContainer.appendChild(document.getElementById(id))
-        );
-        exitEdit();
-      };
-      customizeLink.parentElement.after(cancelLi);
+  function addDragHandlers(sec) {
+    sec.addEventListener("dragstart", handleDragStart);
+    sec.addEventListener("dragover", handleDragOver);
+    sec.addEventListener("dragleave", handleDragLeave);
+    sec.addEventListener("dragend", handleDragEnd);
+  }
+  function removeDragHandlers(sec) {
+    sec.removeEventListener("dragstart", handleDragStart);
+    sec.removeEventListener("dragover", handleDragOver);
+    sec.removeEventListener("dragleave", handleDragLeave);
+    sec.removeEventListener("dragend", handleDragEnd);
+  }
 
-      bottomToolbar.classList.remove("hidden");
-      enterEditMode();
-      isEditing = true;
+  // Customize link click
+  customizeLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!customizingMode) {
+      enterCustomizeMode();
     } else {
-      const order = Array.from(mainContainer.children).map((s) => s.id);
+      // Save new order
+      const order = Array.from(mainContainer.children).map((sec) => sec.id);
       localStorage.setItem("sectionOrder", JSON.stringify(order));
-      exitEdit();
+      exitCustomizeMode();
     }
   });
 
-  function exitEdit() {
-    isEditing = false;
-    customizeLink.textContent = "Customize";
-    const cancelLi = document.getElementById("cancelLi");
-    if (cancelLi) cancelLi.remove();
-    bottomToolbar.classList.add("hidden");
-    exitEditMode();
-  }
-
-  // Scroll-to-top
+  // Scroll‐to‐top
   window.addEventListener("scroll", () => {
     scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
   });
@@ -118,36 +147,39 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  // Toolbar icons
+  // Toolbar icon actions
   iconBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.action;
-      switch (action) {
-        case "reorder":
-          popupContent.innerHTML = "<p>Drag any section to reorder.</p>";
-          popupSave.textContent = "Got it";
-          break;
-        case "theme":
-          popupContent.innerHTML = "<p>Theming options coming soon…</p>";
-          popupSave.textContent = "OK";
-          break;
-        case "reset":
-          popupContent.innerHTML = "<p>Reset layout to default?</p>";
-          popupSave.textContent = "Reset";
-          break;
+      if (action === "reorder") {
+        popupContent.innerHTML = "<p>Drag sections to reorder them.</p>";
+        popupSave.textContent = "Got it";
+        popupSave.onclick = () => {
+          iconPopup.classList.add("hidden");
+          if (customizingMode && !draggingMode) {
+            enterDragMode();
+          }
+        };
+      } else if (action === "theme") {
+        popupContent.innerHTML = "<p>Theming options coming soon…</p>";
+        popupSave.textContent = "OK";
+        popupSave.onclick = () => iconPopup.classList.add("hidden");
+      } else if (action === "reset") {
+        popupContent.innerHTML = "<p>Reset layout to default?</p>";
+        popupSave.textContent = "Reset";
+        popupSave.onclick = () => {
+          localStorage.removeItem("sectionOrder");
+          location.reload();
+        };
       }
       iconPopup.classList.remove("hidden");
     });
   });
-  popupSave.addEventListener("click", () => iconPopup.classList.add("hidden"));
   popupCancel.addEventListener("click", () =>
     iconPopup.classList.add("hidden")
   );
 
-  /* ----------------------------------
-     Fetch logic with preload loaders
-  ---------------------------------- */
-
+  // CVSS helper
   const getSeverityClass = (score) => {
     const n = parseFloat(score);
     if (n >= 7) return "severe";
@@ -156,11 +188,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return "neutral";
   };
 
+  // Fetch routines with loader
   async function fetchMicrosoftUpdates() {
     setLoading("microsoft-content");
     try {
-      const res = await fetch("http://localhost:3000/api/updates");
-      const data = await res.json();
+      const data = await (
+        await fetch("http://localhost:3000/api/updates")
+      ).json();
       const list = (data["vuln:Vulnerability"] || [])
         .filter((v) => v["vuln:Title"])
         .map((v) => ({
@@ -185,9 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .map(
           (v) => `
           <div class="news-card">
-            <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
-            v.baseScore
-          }</div>
+            <div class="score-badge ${getSeverityClass(v.baseScore)}">
+              CVSS: ${v.baseScore}
+            </div>
             <h4>${v.title}</h4>
             <div class="meta-info">
               <span class="status-dot ${
@@ -203,17 +237,15 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         )
         .join("");
-    } catch (e) {
-      // leave loader until user starts interacting
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   }
 
   async function fetchCisaUpdates() {
     setLoading("cisa-content");
     try {
-      const res = await fetch("http://localhost:3000/api/cisa");
-      const data = await res.json();
+      const data = await (await fetch("http://localhost:3000/api/cisa")).json();
       const list = data
         .map((v) => ({
           title: v.vulnerabilityName,
@@ -232,35 +264,35 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         )
         .join("");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   }
 
   async function fetchRedHatUpdates() {
     setLoading("redhat-content");
     try {
-      const res = await fetch("http://localhost:3000/api/redhat");
-      const data = await res.json();
+      const data = await (
+        await fetch("http://localhost:3000/api/redhat")
+      ).json();
       const list = data.filter((v) => v.title).slice(0, 3);
+
       document.getElementById("redhat-content").innerHTML = list
         .map(
           (v) => `
           <div class="news-card">
             <h4>${v.title}</h4>
-            <div class="meta-info">
-              ${
-                v.publicDate !== "No date provided"
-                  ? new Date(v.publicDate).toLocaleDateString()
-                  : "No Date"
-              }
-            </div>
+            <div class="meta-info">${
+              v.publicDate !== "No date provided"
+                ? new Date(v.publicDate).toLocaleDateString()
+                : "No Date"
+            }</div>
           </div>
         `
         )
         .join("");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -268,10 +300,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoading("trending-content");
     try {
       const apiKey = "aa46aa2754214ac295aa1e80213c829d";
-      const res = await fetch(
-        `https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${apiKey}`
-      );
-      const data = await res.json();
+      const data = await (
+        await fetch(
+          `https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${apiKey}`
+        )
+      ).json();
       const list = (data.articles || [])
         .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
         .slice(0, 3);
@@ -288,12 +321,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         )
         .join("");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  // Kick off all fetches
+  // Initialize
   fetchMicrosoftUpdates();
   fetchCisaUpdates();
   fetchRedHatUpdates();
