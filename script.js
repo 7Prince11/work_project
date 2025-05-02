@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const mainContainer = document.getElementById("mainSections");
+  const navList = document.querySelector(".portal-nav ul");
   const customizeLink = document.getElementById("customize-link");
   const scrollBtn = document.getElementById("scrollTopBtn");
   const bottomToolbar = document.querySelector(".bottom-toolbar");
@@ -11,27 +12,68 @@ document.addEventListener("DOMContentLoaded", () => {
   const popupSave = document.getElementById("popupSave");
   const popupCancel = document.getElementById("popupCancel");
 
-  let customizingMode = false; // whether user has clicked “Customize”
-  let draggingMode = false; // whether sections are draggable/shaking
-  let originalOrder = [];
+  let customizingMode = false;
+  let draggingMode = false;
+  let originalNodes = [];
   let dragSrcEl = null;
 
-  // Restore saved section order
-  const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
-  if (savedOrder.length) {
-    savedOrder.forEach((id) => {
-      const sec = document.getElementById(id);
-      if (sec) mainContainer.appendChild(sec);
-    });
+  // Move the Customize <li> to the bottom of the sidebar
+  function moveCustomizeToBottom() {
+    const li = customizeLink.parentElement;
+    navList.appendChild(li);
   }
 
-  // Preloader helper
+  // Reorder the side‐menu items to match the sections order
+  function syncMenuToSections() {
+    const order = Array.from(mainContainer.children).map((sec) => sec.id);
+    order.forEach((id) => {
+      const li = navList.querySelector(`li a[href="#${id}"]`)?.parentElement;
+      if (li) navList.appendChild(li);
+    });
+    // always keep Customize last
+    moveCustomizeToBottom();
+  }
+
+  // Insert three‐dot loader into a container
   function setLoading(id) {
     document.getElementById(id).innerHTML =
       '<div class="loader"><span></span><span></span><span></span></div>';
   }
 
-  // Enter drag mode: make sections draggable + shaking
+  // --- Drag & Drop ---------------------------------------
+
+  function handleDragStart(e) {
+    dragSrcEl = this;
+    this.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    const target = this;
+    if (target === dragSrcEl) return;
+    const rect = target.getBoundingClientRect();
+    const after = (e.clientY - rect.top) / rect.height > 0.5;
+    mainContainer.insertBefore(dragSrcEl, after ? target.nextSibling : target);
+  }
+
+  function handleDragEnd() {
+    this.classList.remove("dragging");
+    syncMenuToSections();
+  }
+
+  function addDragHandlers(sec) {
+    sec.addEventListener("dragstart", handleDragStart);
+    sec.addEventListener("dragover", handleDragOver);
+    sec.addEventListener("dragend", handleDragEnd);
+  }
+
+  function removeDragHandlers(sec) {
+    sec.removeEventListener("dragstart", handleDragStart);
+    sec.removeEventListener("dragover", handleDragOver);
+    sec.removeEventListener("dragend", handleDragEnd);
+  }
+
   function enterDragMode() {
     draggingMode = true;
     document.body.classList.add("edit-mode");
@@ -42,33 +84,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Exit drag mode: disable dragging + stop shaking
   function exitDragMode() {
     draggingMode = false;
     document.body.classList.remove("edit-mode");
     Array.from(mainContainer.children).forEach((sec) => {
       sec.removeAttribute("draggable");
-      sec.classList.remove("editing");
+      sec.classList.remove("editing", "dragging");
       removeDragHandlers(sec);
-      sec.classList.remove("dragging", "over");
     });
   }
 
-  // Toggle customizing mode on/off
+  // --- Customize Mode -----------------------------------
+
   function enterCustomizeMode() {
     customizingMode = true;
-    originalOrder = Array.from(mainContainer.children).map((sec) => sec.id);
+    originalNodes = Array.from(mainContainer.children);
     customizeLink.textContent = "Save";
-    // Insert Cancel link
+
     const cancelLi = document.createElement("li");
     cancelLi.id = "cancelLi";
     cancelLi.innerHTML = `<a href="#">Cancel</a>`;
-    cancelLi.addEventListener("click", (event) => {
-      event.preventDefault();
-      revertOrder();
+    cancelLi.addEventListener("click", (e) => {
+      e.preventDefault();
+      // restore original DOM nodes
+      mainContainer.innerHTML = "";
+      originalNodes.forEach((node) => mainContainer.appendChild(node));
+      syncMenuToSections();
       exitCustomizeMode();
     });
     customizeLink.parentElement.after(cancelLi);
+
     bottomToolbar.classList.remove("hidden");
   }
 
@@ -78,76 +123,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cancelLi")?.remove();
     bottomToolbar.classList.add("hidden");
     exitDragMode();
+    // ensure Customize remains last
+    moveCustomizeToBottom();
   }
 
-  function revertOrder() {
-    mainContainer.innerHTML = "";
-    originalOrder.forEach((id) => {
-      const sec = document.getElementById(id);
-      if (sec) mainContainer.appendChild(sec);
-    });
-  }
-
-  // Drag event handlers
-  function handleDragStart(e) {
-    dragSrcEl = this;
-    this.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-  }
-  function handleDragOver(e) {
-    e.preventDefault();
-    const target = this;
-    if (target === dragSrcEl) return;
-    const rect = target.getBoundingClientRect();
-    const after = (e.clientY - rect.top) / rect.height > 0.5;
-    mainContainer.insertBefore(dragSrcEl, after ? target.nextSibling : target);
-    target.classList.add("over");
-  }
-  function handleDragLeave() {
-    this.classList.remove("over");
-  }
-  function handleDragEnd() {
-    this.classList.remove("dragging");
-    Array.from(mainContainer.children).forEach((sec) =>
-      sec.classList.remove("over")
-    );
-  }
-
-  function addDragHandlers(sec) {
-    sec.addEventListener("dragstart", handleDragStart);
-    sec.addEventListener("dragover", handleDragOver);
-    sec.addEventListener("dragleave", handleDragLeave);
-    sec.addEventListener("dragend", handleDragEnd);
-  }
-  function removeDragHandlers(sec) {
-    sec.removeEventListener("dragstart", handleDragStart);
-    sec.removeEventListener("dragover", handleDragOver);
-    sec.removeEventListener("dragleave", handleDragLeave);
-    sec.removeEventListener("dragend", handleDragEnd);
-  }
-
-  // Customize link click
   customizeLink.addEventListener("click", (e) => {
     e.preventDefault();
     if (!customizingMode) {
       enterCustomizeMode();
     } else {
-      // Save new order
+      // save new order
       const order = Array.from(mainContainer.children).map((sec) => sec.id);
       localStorage.setItem("sectionOrder", JSON.stringify(order));
       exitCustomizeMode();
     }
   });
 
-  // Scroll‐to‐top
-  window.addEventListener("scroll", () => {
-    scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
-  });
-  scrollBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  // --- Toolbar Icon Actions -----------------------------
 
-  // Toolbar icon actions
   iconBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.action;
@@ -156,9 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
         popupSave.textContent = "Got it";
         popupSave.onclick = () => {
           iconPopup.classList.add("hidden");
-          if (customizingMode && !draggingMode) {
-            enterDragMode();
-          }
+          if (customizingMode && !draggingMode) enterDragMode();
         };
       } else if (action === "theme") {
         popupContent.innerHTML = "<p>Theming options coming soon…</p>";
@@ -175,11 +166,22 @@ document.addEventListener("DOMContentLoaded", () => {
       iconPopup.classList.remove("hidden");
     });
   });
-  popupCancel.addEventListener("click", () =>
-    iconPopup.classList.add("hidden")
-  );
 
-  // CVSS helper
+  popupCancel.addEventListener("click", () => {
+    iconPopup.classList.add("hidden");
+  });
+
+  // --- Scroll-to-Top ------------------------------------
+
+  window.addEventListener("scroll", () => {
+    scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
+  });
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // --- CVSS Severity Helper -----------------------------
+
   const getSeverityClass = (score) => {
     const n = parseFloat(score);
     if (n >= 7) return "severe";
@@ -188,7 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return "neutral";
   };
 
-  // Fetch routines with loader
+  // --- Fetch & Render -----------------------------------
+
   async function fetchMicrosoftUpdates() {
     setLoading("microsoft-content");
     try {
@@ -218,23 +221,23 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("microsoft-content").innerHTML = list
         .map(
           (v) => `
-          <div class="news-card">
-            <div class="score-badge ${getSeverityClass(v.baseScore)}">
-              CVSS: ${v.baseScore}
-            </div>
-            <h4>${v.title}</h4>
-            <div class="meta-info">
-              <span class="status-dot ${
-                v.status === "Exploited" ? "exploited" : "safe"
-              }"></span>${v.status}
-              <span>📅 ${
-                v.date === "N/A"
-                  ? "No Date"
-                  : new Date(v.date).toLocaleDateString()
-              }</span>
-            </div>
+        <div class="news-card">
+          <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
+            v.baseScore
+          }</div>
+          <h4>${v.title}</h4>
+          <div class="meta-info">
+            <span class="status-dot ${
+              v.status === "Exploited" ? "exploited" : "safe"
+            }"></span>${v.status}
+            <span>📅 ${
+              v.date === "N/A"
+                ? "No Date"
+                : new Date(v.date).toLocaleDateString()
+            }</span>
           </div>
-        `
+        </div>
+      `
         )
         .join("");
     } catch (err) {
@@ -257,11 +260,11 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("cisa-content").innerHTML = list
         .map(
           (u) => `
-          <div class="news-card">
-            <h4>${u.title}</h4>
-            <div class="meta-info">📅 ${u.date.toLocaleDateString()}</div>
-          </div>
-        `
+        <div class="news-card">
+          <h4>${u.title}</h4>
+          <div class="meta-info">📅 ${u.date.toLocaleDateString()}</div>
+        </div>
+      `
         )
         .join("");
     } catch (err) {
@@ -280,15 +283,15 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("redhat-content").innerHTML = list
         .map(
           (v) => `
-          <div class="news-card">
-            <h4>${v.title}</h4>
-            <div class="meta-info">${
-              v.publicDate !== "No date provided"
-                ? new Date(v.publicDate).toLocaleDateString()
-                : "No Date"
-            }</div>
-          </div>
-        `
+        <div class="news-card">
+          <h4>${v.title}</h4>
+          <div class="meta-info">${
+            v.publicDate !== "No date provided"
+              ? new Date(v.publicDate).toLocaleDateString()
+              : "No Date"
+          }</div>
+        </div>
+      `
         )
         .join("");
     } catch (err) {
@@ -312,13 +315,13 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("trending-content").innerHTML = list
         .map(
           (a) => `
-          <div class="news-card">
-            <h4>${a.title}</h4>
-            <div class="meta-info">📅 ${new Date(
-              a.publishedAt
-            ).toLocaleDateString()}</div>
-          </div>
-        `
+        <div class="news-card">
+          <h4>${a.title}</h4>
+          <div class="meta-info">📅 ${new Date(
+            a.publishedAt
+          ).toLocaleDateString()}</div>
+        </div>
+      `
         )
         .join("");
     } catch (err) {
@@ -326,7 +329,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Initialize
+  // --- Initialization -----------------------------------
+
+  // Restore saved sections order
+  const saved = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
+  if (saved.length) {
+    saved.forEach((id) => {
+      const sec = document.getElementById(id);
+      if (sec) mainContainer.appendChild(sec);
+    });
+  }
+
+  // Sync menu and Ensure Customize at bottom
+  syncMenuToSections();
+
+  // Kick off fetches
   fetchMicrosoftUpdates();
   fetchCisaUpdates();
   fetchRedHatUpdates();

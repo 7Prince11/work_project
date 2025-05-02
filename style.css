@@ -73,6 +73,8 @@ header.header h1 {
 .portal-nav ul {
   list-style: none;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .portal-nav li + li {
   margin-top: 0.75rem;
@@ -86,6 +88,28 @@ header.header h1 {
   padding: 0.5rem 0;
   font-weight: 500;
 }
+.popup-btn {
+  font-style: italic; /* Save & Cancel in italic */
+}
+/* Move the Customize link to bottom */
+.portal-nav a#customize-link {
+  order: 99;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e3e3e3;
+}
+
+/* Add pencil icon before it */
+.portal-nav a#customize-link::before {
+  margin-right: 4px;
+}
+
+/* Cancel link in menu italic */
+#cancelLi a {
+  font-style: italic;
+}
+
+/* Hover state */
 .portal-nav a:hover {
   background: var(--background);
 }
@@ -108,11 +132,10 @@ header.header h1 {
   transition: transform 0.3s ease;
 }
 
-/* Subtle shake in edit-mode */
+/* Shake in edit-mode */
 .news-section.editing {
   animation: shake 0.8s infinite;
   cursor: grab;
-  z-index: 100;
 }
 @keyframes shake {
   0% {
@@ -160,7 +183,7 @@ header.header h1 {
     no-repeat center;
 }
 
-/* About */
+/* About section */
 #about.news-section {
   border-left: 4px solid var(--accent);
 }
@@ -170,7 +193,7 @@ header.header h1 {
   line-height: 1.5;
 }
 
-/* Grid of cards */
+/* Grid */
 .news-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -178,7 +201,7 @@ header.header h1 {
   margin-top: 1rem;
 }
 
-/* Old spinner (fallback) */
+/* Spinner */
 .loading-animation {
   width: 40px;
   height: 40px;
@@ -197,7 +220,7 @@ header.header h1 {
   }
 }
 
-/* Three-dot loader for JS preloading */
+/* Three-dot loader */
 .loader {
   display: inline-block;
   padding: 1rem;
@@ -295,7 +318,7 @@ header.header h1 {
   color: white;
 }
 
-/* View More button */
+/* View More */
 .view-more-button {
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
