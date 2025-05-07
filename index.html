@@ -5,13 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>University Cybersecurity News</title>
-
     <link rel="icon" href="data:image/svg+xml;utf8,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
       <circle cx='50' cy='50' r='50' fill='%23800000'/>
       <path d='M50 18 L72 36 L68 70 L50 82 L32 70 L28 36 Z' fill='%23ffffff'/>
     </svg>" type="image/svg+xml" />
-
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -19,17 +17,23 @@
     <header class="header">
         <img src="images/bsu_news.png" alt="BSU CyberNews Logo" />
         <h1>University Cybersecurity News</h1>
+        <button id="settingsBtn" class="settings-btn" aria-label="Settings">⚙️</button>
     </header>
 
     <div class="portal">
         <nav class="portal-nav">
+            <!-- new collapse/expand button -->
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 6l-1.4 1.4L12.2 12l-4.6 4.6L9 18l6-6z" />
+                </svg>
+            </button>
             <ul>
                 <li><a href="#about">About</a></li>
                 <li><a href="#microsoft-news">Microsoft</a></li>
                 <li><a href="#cisa-news">CISA</a></li>
                 <li><a href="#redhat-news">Red Hat</a></li>
                 <li><a href="#trending-news">Trending</a></li>
-                <li><a id="customize-link" href="javascript:void(0)">Customize</a></li>
             </ul>
         </nav>
 
@@ -38,8 +42,10 @@
                 <h2>About</h2>
                 <p class="about-text">
                     Welcome to BSU CyberNews — your hub for the latest cybersecurity updates impacting our campus and
-                    beyond. We curate official advisories from Microsoft, CISA, Red Hat, and emerging trends to keep
-                    students and staff informed about vulnerabilities, patches, and best practices.
+                    beyond.
+                    We curate official advisories from Microsoft, CISA, Red Hat, and emerging trends to keep students
+                    and staff
+                    informed about vulnerabilities, patches, and best practices.
                 </p>
             </section>
 
@@ -48,8 +54,9 @@
                 <div id="microsoft-content" class="news-content">
                     <div class="loading-animation"></div>
                 </div>
-                <button class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">View More Microsoft
-                    Updates</button>
+                <button class="view-more-button" onclick="redirectTo('microsoft/microsoft.html')">
+                    View More Microsoft Updates
+                </button>
             </section>
 
             <section id="cisa-news" class="news-section">
@@ -57,7 +64,9 @@
                 <div id="cisa-content" class="news-content">
                     <div class="loading-animation"></div>
                 </div>
-                <button class="view-more-button" onclick="redirectTo('cisa/cisa.html')">View More CISA Updates</button>
+                <button class="view-more-button" onclick="redirectTo('cisa/cisa.html')">
+                    View More CISA Updates
+                </button>
             </section>
 
             <section id="redhat-news" class="news-section">
@@ -65,8 +74,9 @@
                 <div id="redhat-content" class="news-content">
                     <div class="loading-animation"></div>
                 </div>
-                <button class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">View More Red Hat
-                    Updates</button>
+                <button class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">
+                    View More Red Hat Updates
+                </button>
             </section>
 
             <section id="trending-news" class="news-section">
@@ -74,37 +84,44 @@
                 <div id="trending-content" class="news-content">
                     <div class="loading-animation"></div>
                 </div>
-                <button class="view-more-button" onclick="redirectTo('news/news.html')">View More Trending
-                    Articles</button>
+                <button class="view-more-button" onclick="redirectTo('news/news.html')">
+                    View More Trending Articles
+                </button>
             </section>
         </main>
     </div>
 
-    <!-- Scroll-to-Top Button -->
+    <!-- Scroll-to-Top -->
     <button id="scrollTopBtn" aria-label="Scroll to top">↑</button>
 
-    <!-- Bottom Toolbar (only shown in edit mode) -->
-    <div class="bottom-toolbar hidden">
-        <button class="icon-btn" data-action="reorder" title="Reorder Sections">↕️</button>
-        <button class="icon-btn" data-action="theme" title="Change Theme">🎨</button>
-        <button class="icon-btn" data-action="reset" title="Reset Layout">🔄</button>
+    <!-- Top toolbar (slides down) -->
+    <div class="top-toolbar hidden">
+        <button class="icon-btn" data-action="reorder">
+            <span>↕️</span><small>Reorder</small>
+        </button>
+        <button class="icon-btn" data-action="theme">
+            <span>🎨</span><small>Theme</small>
+        </button>
+        <button class="icon-btn" data-action="reset">
+            <span>🔄</span><small>Reset</small>
+        </button>
     </div>
 
-    <!-- Popup for toolbar actions (slides down from top) -->
+    <!-- Popup -->
     <div id="iconPopup" class="icon-popup hidden">
         <div id="popupContent"></div>
         <div class="popup-actions">
-            <button id="popupSave" class="popup-btn save-btn">Save</button>
-            <button id="popupCancel" class="popup-btn cancel-btn">Cancel</button>
+            <button id="popupSave" class="popup-btn save-btn">
+                <span>✅</span><small>Save</small>
+            </button>
+            <button id="popupCancel" class="popup-btn cancel-btn">
+                <span>Cancel</span>
+            </button>
         </div>
     </div>
 
     <script src="script.js"></script>
-    <script>
-        function redirectTo(url) {
-            window.location.href = url;
-        }
-    </script>
+    <script>function redirectTo(u) { location.href = u; }</script>
 </body>
 
 </html>

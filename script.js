@@ -1,53 +1,50 @@
 // script.js
-
 document.addEventListener("DOMContentLoaded", () => {
+  // —— Sidebar toggle
+  const sidebarNav = document.querySelector(".portal-nav");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  sidebarToggle.addEventListener("click", () => {
+    sidebarNav.classList.toggle("collapsed");
+  });
+
+  // —— The rest of your existing logic…
   const mainContainer = document.getElementById("mainSections");
   const navList = document.querySelector(".portal-nav ul");
-  const customizeLink = document.getElementById("customize-link");
-  const scrollBtn = document.getElementById("scrollTopBtn");
-  const bottomToolbar = document.querySelector(".bottom-toolbar");
-  const iconBtns = document.querySelectorAll(".icon-btn");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const topToolbar = document.querySelector(".top-toolbar");
+  const iconBtns = document.querySelectorAll(
+    ".top-toolbar .icon-btn[data-action]"
+  );
   const iconPopup = document.getElementById("iconPopup");
   const popupContent = document.getElementById("popupContent");
   const popupSave = document.getElementById("popupSave");
   const popupCancel = document.getElementById("popupCancel");
+  const scrollBtn = document.getElementById("scrollTopBtn");
 
-  let customizingMode = false;
-  let draggingMode = false;
-  let originalNodes = [];
-  let dragSrcEl = null;
+  let draggingMode = false,
+    dragSrcEl = null,
+    originalNodes = [];
 
-  // Move the Customize <li> to the bottom of the sidebar
-  function moveCustomizeToBottom() {
-    const li = customizeLink.parentElement;
-    navList.appendChild(li);
-  }
-
-  // Reorder the side‐menu items to match the sections order
+  // — Helpers —
   function syncMenuToSections() {
-    const order = Array.from(mainContainer.children).map((sec) => sec.id);
-    order.forEach((id) => {
-      const li = navList.querySelector(`li a[href="#${id}"]`)?.parentElement;
+    Array.from(mainContainer.children).forEach((sec) => {
+      const li = navList.querySelector(
+        `li a[href="#${sec.id}"]`
+      )?.parentElement;
       if (li) navList.appendChild(li);
     });
-    // always keep Customize last
-    moveCustomizeToBottom();
   }
-
-  // Insert three‐dot loader into a container
   function setLoading(id) {
     document.getElementById(id).innerHTML =
       '<div class="loader"><span></span><span></span><span></span></div>';
   }
 
-  // --- Drag & Drop ---------------------------------------
-
+  // — Drag & Drop Handlers —
   function handleDragStart(e) {
     dragSrcEl = this;
     this.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
   }
-
   function handleDragOver(e) {
     e.preventDefault();
     const target = this;
@@ -56,18 +53,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const after = (e.clientY - rect.top) / rect.height > 0.5;
     mainContainer.insertBefore(dragSrcEl, after ? target.nextSibling : target);
   }
-
   function handleDragEnd() {
     this.classList.remove("dragging");
     syncMenuToSections();
   }
-
   function addDragHandlers(sec) {
     sec.addEventListener("dragstart", handleDragStart);
     sec.addEventListener("dragover", handleDragOver);
     sec.addEventListener("dragend", handleDragEnd);
   }
-
   function removeDragHandlers(sec) {
     sec.removeEventListener("dragstart", handleDragStart);
     sec.removeEventListener("dragover", handleDragOver);
@@ -76,7 +70,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function enterDragMode() {
     draggingMode = true;
+    originalNodes = Array.from(mainContainer.children);
+
     document.body.classList.add("edit-mode");
+    iconBtns.forEach((b) => b.classList.add("hidden"));
+
+    // ✅ Save
+    const saveBtn = document.createElement("button");
+    saveBtn.id = "saveReorderBtn";
+    saveBtn.className = "icon-btn save-icon";
+    saveBtn.innerHTML = `<span>✅</span><small>Save</small>`;
+    saveBtn.onclick = () => {
+      exitDragMode();
+      const order = Array.from(mainContainer.children).map((s) => s.id);
+      localStorage.setItem("sectionOrder", JSON.stringify(order));
+      syncMenuToSections();
+    };
+
+    // ❌ Cancel
+    const cancelBtn = document.createElement("button");
+    cancelBtn.id = "cancelReorderBtn";
+    cancelBtn.className = "icon-btn cancel-icon";
+    cancelBtn.innerHTML = `<span>❌</span><small>Cancel</small>`;
+    cancelBtn.onclick = () => {
+      mainContainer.innerHTML = "";
+      originalNodes.forEach((n) => mainContainer.appendChild(n));
+      syncMenuToSections();
+      exitDragMode();
+    };
+
+    topToolbar.appendChild(saveBtn);
+    topToolbar.appendChild(cancelBtn);
+
     Array.from(mainContainer.children).forEach((sec) => {
       sec.setAttribute("draggable", true);
       sec.classList.add("editing");
@@ -87,6 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function exitDragMode() {
     draggingMode = false;
     document.body.classList.remove("edit-mode");
+    iconBtns.forEach((b) => b.classList.remove("hidden"));
+    document.getElementById("saveReorderBtn")?.remove();
+    document.getElementById("cancelReorderBtn")?.remove();
+
     Array.from(mainContainer.children).forEach((sec) => {
       sec.removeAttribute("draggable");
       sec.classList.remove("editing", "dragging");
@@ -94,76 +123,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Customize Mode -----------------------------------
-
-  function enterCustomizeMode() {
-    customizingMode = true;
-    originalNodes = Array.from(mainContainer.children);
-    customizeLink.textContent = "Save";
-
-    const cancelLi = document.createElement("li");
-    cancelLi.id = "cancelLi";
-    cancelLi.innerHTML = `<a href="#">Cancel</a>`;
-    cancelLi.addEventListener("click", (e) => {
-      e.preventDefault();
-      // restore original DOM nodes
-      mainContainer.innerHTML = "";
-      originalNodes.forEach((node) => mainContainer.appendChild(node));
-      syncMenuToSections();
-      exitCustomizeMode();
-    });
-    customizeLink.parentElement.after(cancelLi);
-
-    bottomToolbar.classList.remove("hidden");
-  }
-
-  function exitCustomizeMode() {
-    customizingMode = false;
-    customizeLink.textContent = "Customize";
-    document.getElementById("cancelLi")?.remove();
-    bottomToolbar.classList.add("hidden");
-    exitDragMode();
-    // ensure Customize remains last
-    moveCustomizeToBottom();
-  }
-
-  customizeLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (!customizingMode) {
-      enterCustomizeMode();
-    } else {
-      // save new order
-      const order = Array.from(mainContainer.children).map((sec) => sec.id);
-      localStorage.setItem("sectionOrder", JSON.stringify(order));
-      exitCustomizeMode();
-    }
+  // — Settings / Toolbar —
+  settingsBtn.addEventListener("click", () => {
+    topToolbar.classList.toggle("visible");
   });
-
-  // --- Toolbar Icon Actions -----------------------------
 
   iconBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.action;
-      if (action === "reorder") {
-        popupContent.innerHTML = "<p>Drag sections to reorder them.</p>";
-        popupSave.textContent = "Got it";
+      iconPopup.classList.add("hidden");
+
+      if (action === "reorder" && !draggingMode) {
+        popupContent.innerHTML = "<p>Click ✅ to save or ❌ to cancel.</p>";
+        popupSave.textContent = "Start";
         popupSave.onclick = () => {
           iconPopup.classList.add("hidden");
-          if (customizingMode && !draggingMode) enterDragMode();
+          enterDragMode();
         };
+        iconPopup.classList.remove("hidden");
       } else if (action === "theme") {
         popupContent.innerHTML = "<p>Theming options coming soon…</p>";
         popupSave.textContent = "OK";
         popupSave.onclick = () => iconPopup.classList.add("hidden");
+        iconPopup.classList.remove("hidden");
       } else if (action === "reset") {
-        popupContent.innerHTML = "<p>Reset layout to default?</p>";
+        popupContent.innerHTML = "<p>Reset to default?</p>";
         popupSave.textContent = "Reset";
         popupSave.onclick = () => {
           localStorage.removeItem("sectionOrder");
           location.reload();
         };
+        iconPopup.classList.remove("hidden");
       }
-      iconPopup.classList.remove("hidden");
     });
   });
 
@@ -171,8 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     iconPopup.classList.add("hidden");
   });
 
-  // --- Scroll-to-Top ------------------------------------
-
+  // — Scroll to Top —
   window.addEventListener("scroll", () => {
     scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
   });
@@ -180,8 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  // --- CVSS Severity Helper -----------------------------
-
+  // — CVSS Severity Helper —
   const getSeverityClass = (score) => {
     const n = parseFloat(score);
     if (n >= 7) return "severe";
@@ -190,8 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "neutral";
   };
 
-  // --- Fetch & Render -----------------------------------
-
+  // — Fetch & Render —
   async function fetchMicrosoftUpdates() {
     setLoading("microsoft-content");
     try {
@@ -221,27 +209,27 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("microsoft-content").innerHTML = list
         .map(
           (v) => `
-        <div class="news-card">
-          <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
-            v.baseScore
-          }</div>
-          <h4>${v.title}</h4>
-          <div class="meta-info">
-            <span class="status-dot ${
-              v.status === "Exploited" ? "exploited" : "safe"
-            }"></span>${v.status}
-            <span>📅 ${
-              v.date === "N/A"
-                ? "No Date"
-                : new Date(v.date).toLocaleDateString()
-            }</span>
+          <div class="news-card">
+            <div class="score-badge ${getSeverityClass(v.baseScore)}">
+              CVSS: ${v.baseScore}
+            </div>
+            <h4>${v.title}</h4>
+            <div class="meta-info">
+              <span class="status-dot ${
+                v.status === "Exploited" ? "exploited" : "safe"
+              }"></span>${v.status}
+              <span>📅${
+                v.date === "N/A"
+                  ? "No Date"
+                  : new Date(v.date).toLocaleDateString()
+              }</span>
+            </div>
           </div>
-        </div>
-      `
+        `
         )
         .join("");
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -260,15 +248,15 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("cisa-content").innerHTML = list
         .map(
           (u) => `
-        <div class="news-card">
-          <h4>${u.title}</h4>
-          <div class="meta-info">📅 ${u.date.toLocaleDateString()}</div>
-        </div>
-      `
+          <div class="news-card">
+            <h4>${u.title}</h4>
+            <div class="meta-info">📅${u.date.toLocaleDateString()}</div>
+          </div>
+        `
         )
         .join("");
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -279,23 +267,22 @@ document.addEventListener("DOMContentLoaded", () => {
         await fetch("http://localhost:3000/api/redhat")
       ).json();
       const list = data.filter((v) => v.title).slice(0, 3);
-
       document.getElementById("redhat-content").innerHTML = list
         .map(
           (v) => `
-        <div class="news-card">
-          <h4>${v.title}</h4>
-          <div class="meta-info">${
-            v.publicDate !== "No date provided"
-              ? new Date(v.publicDate).toLocaleDateString()
-              : "No Date"
-          }</div>
-        </div>
-      `
+          <div class="news-card">
+            <h4>${v.title}</h4>
+            <div class="meta-info">${
+              v.publicDate !== "No date provided"
+                ? new Date(v.publicDate).toLocaleDateString()
+                : "No Date"
+            }</div>
+          </div>
+        `
         )
         .join("");
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -315,23 +302,21 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("trending-content").innerHTML = list
         .map(
           (a) => `
-        <div class="news-card">
-          <h4>${a.title}</h4>
-          <div class="meta-info">📅 ${new Date(
-            a.publishedAt
-          ).toLocaleDateString()}</div>
-        </div>
-      `
+          <div class="news-card">
+            <h4>${a.title}</h4>
+            <div class="meta-info">📅${new Date(
+              a.publishedAt
+            ).toLocaleDateString()}</div>
+          </div>
+        `
         )
         .join("");
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
   }
 
-  // --- Initialization -----------------------------------
-
-  // Restore saved sections order
+  // — Initialize —
   const saved = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
   if (saved.length) {
     saved.forEach((id) => {
@@ -339,11 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (sec) mainContainer.appendChild(sec);
     });
   }
-
-  // Sync menu and Ensure Customize at bottom
   syncMenuToSections();
-
-  // Kick off fetches
   fetchMicrosoftUpdates();
   fetchCisaUpdates();
   fetchRedHatUpdates();
