@@ -41,7 +41,7 @@ header.header img {
   position: absolute;
   left: 1.5rem;
   height: 120px;
-  animation: pulse 4s ease-in-out infinite;
+  animation: pulse 3.5s ease-in-out infinite;
 }
 header.header h1 {
   color: white;
@@ -156,7 +156,10 @@ header.header h1 {
   height: 20px;
   fill: white;
 }
-
+.sidebar-toggle svg {
+  transition: transform 0.3s ease;
+  transform: rotate(180deg);
+}
 /* 3) Collapsed state */
 .portal-nav.collapsed {
   width: 0;
@@ -168,10 +171,10 @@ header.header h1 {
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
-.portal-nav.collapsed .sidebar-toggle {
-  transform: rotate(180deg);
-}
 
+.portal-nav.collapsed .sidebar-toggle svg {
+  transform: rotate(0deg);
+}
 /* Main Content */
 .news-container {
   flex: 1;
@@ -475,5 +478,14 @@ header.header h1 {
   .news-container {
     margin: 1rem 0;
     padding: 0 1rem;
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
   }
 }

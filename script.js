@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "N/A",
         }))
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 3);
+        .slice(0, 4);
 
       document.getElementById("microsoft-content").innerHTML = list
         .map(
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
           date: new Date(v.dateAdded),
         }))
         .sort((a, b) => b.date - a.date)
-        .slice(0, 3);
+        .slice(0, 4);
 
       document.getElementById("cisa-content").innerHTML = list
         .map(
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await (
         await fetch("http://localhost:3000/api/redhat")
       ).json();
-      const list = data.filter((v) => v.title).slice(0, 3);
+      const list = data.filter((v) => v.title).slice(0, 4);
       document.getElementById("redhat-content").innerHTML = list
         .map(
           (v) => `
@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ).json();
       const list = (data.articles || [])
         .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
-        .slice(0, 3);
+        .slice(0, 4);
 
       document.getElementById("trending-content").innerHTML = list
         .map(
