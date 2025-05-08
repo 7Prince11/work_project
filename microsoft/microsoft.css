@@ -2,17 +2,20 @@
 body {
   margin: 0;
   font-family: "Arial", sans-serif;
-  background-color: #f8f9fa;
-  color: #2d3748;
+
   line-height: 1.6;
+}
+body {
+  background: var(--background);
+  color: var(--text);
 }
 
 /* Header */
 header.header {
-  background-color: #800000;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+  background: var(--primary);
 }
 
 header.header::after {
@@ -41,11 +44,13 @@ header h1 {
   align-items: center;
   padding: 1.5rem;
   margin: 2rem;
-  background: white;
+
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-
+.header-filter-container {
+  background: var(--light-bg);
+}
 .filter-container {
   position: relative;
 }
@@ -53,7 +58,7 @@ header h1 {
 .filter-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #800000;
+  color: var(--text);
   margin-right: 1rem;
 }
 
@@ -83,13 +88,16 @@ header h1 {
 
 .vulnerability-card {
   position: relative;
-  background: white;
+
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.vulnerability-card {
+  background: var(--light-bg);
 }
 
 .vulnerability-card::before {
@@ -119,7 +127,7 @@ header h1 {
   margin: 0 0 1.2rem;
   font-size: 1.15rem;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--text);
   line-height: 1.4;
 }
 
@@ -207,7 +215,7 @@ header h1 {
 .explanation {
   margin: 2rem;
   padding: 2rem;
-  background: white;
+  background: var(--light-bg);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -215,7 +223,7 @@ header h1 {
 .explanation h4 {
   margin: 0 0 1.5rem;
   font-size: 1.25rem;
-  color: #2d3748;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -229,7 +237,7 @@ header h1 {
 .severity-card {
   padding: 1.2rem;
   border-radius: 10px;
-  background: #f8f9fa;
+  background: var(--light-bg);
   position: relative;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -296,7 +304,7 @@ header h1 {
 
 .score-description {
   font-size: 0.9rem;
-  color: #4a5568;
+  color: var(--text);
   line-height: 1.5;
 }
 
@@ -309,7 +317,7 @@ header h1 {
 .score-type h5 {
   margin: 0 0 0.8rem;
   font-size: 1rem;
-  color: #2d3748;
+  color: var(--text);
 }
 
 /* Responsive Design */

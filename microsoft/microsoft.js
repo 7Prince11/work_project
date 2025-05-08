@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h4>${vuln.title}</h4>
         <div class="stats-grid">
           <div class="stat-item">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="var(--text);">
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
               <path d="M12 15.57l-7-3.5V9l7 3.5 7-3.5v3.07l-7 3.5z"/>
             </svg>
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <div class="stat-item">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="var(--text)">
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
               <circle cx="12" cy="12" r="3.5"/>
             </svg>

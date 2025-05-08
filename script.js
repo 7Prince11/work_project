@@ -1,15 +1,17 @@
-// script.js
 document.addEventListener("DOMContentLoaded", () => {
-  // —— Sidebar toggle
+  // —— Dark mode: load saved setting
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+  }
+
+  // —— Sidebar toggle ——
   const sidebarNav = document.querySelector(".portal-nav");
   const sidebarToggle = document.getElementById("sidebarToggle");
   sidebarToggle.addEventListener("click", () => {
     sidebarNav.classList.toggle("collapsed");
   });
 
-  // —— The rest of your existing logic…
-  const mainContainer = document.getElementById("mainSections");
-  const navList = document.querySelector(".portal-nav ul");
+  // —— Settings / Toolbar & Theme toggle ——
   const settingsBtn = document.getElementById("settingsBtn");
   const topToolbar = document.querySelector(".top-toolbar");
   const iconBtns = document.querySelectorAll(
@@ -21,11 +23,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const popupCancel = document.getElementById("popupCancel");
   const scrollBtn = document.getElementById("scrollTopBtn");
 
-  let draggingMode = false,
-    dragSrcEl = null,
-    originalNodes = [];
+  settingsBtn.addEventListener("click", () => {
+    topToolbar.classList.toggle("visible");
+  });
 
-  // — Helpers —
+  iconBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      iconPopup.classList.add("hidden");
+
+      if (action === "theme") {
+        // Toggle dark/light theme
+        const isDark = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        return;
+      }
+
+      if (action === "reorder") {
+        if (!draggingMode) {
+          popupContent.innerHTML = "<p>Click ✅ to save or ❌ to cancel.</p>";
+          popupSave.textContent = "Start";
+          popupSave.onclick = () => {
+            iconPopup.classList.add("hidden");
+            enterDragMode();
+          };
+          iconPopup.classList.remove("hidden");
+        }
+      } else if (action === "reset") {
+        popupContent.innerHTML = "<p>Reset to default?</p>";
+        popupSave.textContent = "Reset";
+        popupSave.onclick = () => {
+          localStorage.removeItem("sectionOrder");
+          localStorage.removeItem("theme");
+          location.reload();
+        };
+        iconPopup.classList.remove("hidden");
+      }
+    });
+  });
+
+  popupCancel.addEventListener("click", () => {
+    iconPopup.classList.add("hidden");
+  });
+
+  // —— Scroll to Top ——
+  window.addEventListener("scroll", () => {
+    scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
+  });
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // —— Drag & Drop Reordering ——
+  const mainContainer = document.getElementById("mainSections");
+  const navList = document.querySelector(".portal-nav ul");
+  let draggingMode = false;
+  let dragSrcEl = null;
+  let originalNodes = [];
+
   function syncMenuToSections() {
     Array.from(mainContainer.children).forEach((sec) => {
       const li = navList.querySelector(
@@ -39,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
       '<div class="loader"><span></span><span></span><span></span></div>';
   }
 
-  // — Drag & Drop Handlers —
   function handleDragStart(e) {
     dragSrcEl = this;
     this.classList.add("dragging");
@@ -123,54 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // — Settings / Toolbar —
-  settingsBtn.addEventListener("click", () => {
-    topToolbar.classList.toggle("visible");
-  });
-
-  iconBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const action = btn.dataset.action;
-      iconPopup.classList.add("hidden");
-
-      if (action === "reorder" && !draggingMode) {
-        popupContent.innerHTML = "<p>Click ✅ to save or ❌ to cancel.</p>";
-        popupSave.textContent = "Start";
-        popupSave.onclick = () => {
-          iconPopup.classList.add("hidden");
-          enterDragMode();
-        };
-        iconPopup.classList.remove("hidden");
-      } else if (action === "theme") {
-        popupContent.innerHTML = "<p>Theming options coming soon…</p>";
-        popupSave.textContent = "OK";
-        popupSave.onclick = () => iconPopup.classList.add("hidden");
-        iconPopup.classList.remove("hidden");
-      } else if (action === "reset") {
-        popupContent.innerHTML = "<p>Reset to default?</p>";
-        popupSave.textContent = "Reset";
-        popupSave.onclick = () => {
-          localStorage.removeItem("sectionOrder");
-          location.reload();
-        };
-        iconPopup.classList.remove("hidden");
-      }
-    });
-  });
-
-  popupCancel.addEventListener("click", () => {
-    iconPopup.classList.add("hidden");
-  });
-
-  // — Scroll to Top —
-  window.addEventListener("scroll", () => {
-    scrollBtn.style.display = window.scrollY > 300 ? "flex" : "none";
-  });
-  scrollBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-
-  // — CVSS Severity Helper —
+  // —— CVSS Severity Helper & Fetch & Render ——
   const getSeverityClass = (score) => {
     const n = parseFloat(score);
     if (n >= 7) return "severe";
@@ -179,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return "neutral";
   };
 
-  // — Fetch & Render —
   async function fetchMicrosoftUpdates() {
     setLoading("microsoft-content");
     try {
@@ -194,9 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
             v["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"]?.[0]?.[
               "vuln:BaseScore"
             ] || "N/A",
-          status: (
-            v["vuln:Threats"]?.["vuln:Threat"]?.[0]?.["vuln:Description"] || ""
-          ).includes("Exploited:Yes")
+          status: v["vuln:Threats"]?.["vuln:Threat"]?.[0]?.[
+            "vuln:Description"
+          ].includes("Exploited:Yes")
             ? "Exploited"
             : "Not Exploited",
           date:
@@ -210,9 +216,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .map(
           (v) => `
           <div class="news-card">
-            <div class="score-badge ${getSeverityClass(v.baseScore)}">
-              CVSS: ${v.baseScore}
-            </div>
+            <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
+            v.baseScore
+          }</div>
             <h4>${v.title}</h4>
             <div class="meta-info">
               <span class="status-dot ${
@@ -316,15 +322,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // — Initialize —
-  const saved = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
-  if (saved.length) {
-    saved.forEach((id) => {
+  // —— Initialize ——
+  const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
+  if (savedOrder.length) {
+    savedOrder.forEach((id) => {
       const sec = document.getElementById(id);
       if (sec) mainContainer.appendChild(sec);
     });
   }
   syncMenuToSections();
+
+  // Fetch all
   fetchMicrosoftUpdates();
   fetchCisaUpdates();
   fetchRedHatUpdates();

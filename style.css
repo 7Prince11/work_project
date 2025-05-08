@@ -3,7 +3,14 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+body.dark-mode {
+  --background: #121212;
+  --light-bg: #1e1e1e;
+  --text: #e0e0e0;
+  --primary: #979393;
+  --primary-dark: #100036;
+  --toolbar-bg: #333;
+}
 /* Color Variables */
 :root {
   --primary: #800000;
