@@ -41,6 +41,21 @@ body {
   left: 1.5rem;
   z-index: 100;
 }
+#time-filter {
+  background-color: var(--header-height);
+  color: var(--text);
+}
+#sort-dropdown {
+  background-color: var(--header-height);
+  color: var(--text);
+}
+#time-filter option,
+#sort-dropdown option {
+  background-color: var(--light-bg); /* light background for list */
+  color: var(--text); /* dark text in the open list */
+}
+
+/* If you want the closed <select> text to turn black when you open it: */
 
 .back-button {
   position: relative;
@@ -101,7 +116,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(20px, 2fr));
   gap: 1.5rem;
   padding: 2rem;
-  background: white;
+  background: var(--light-bg);
   margin: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -131,7 +146,7 @@ body {
 }
 
 .vulnerability-card {
-  background: white;
+  background: var(--light-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -148,7 +163,7 @@ body {
 .vulnerability-card h3 {
   margin: 0 0 1rem;
   font-size: 1.2rem;
-  color: #2d3748;
+  color: var(--text);
   line-height: 1.4;
 }
 
@@ -163,7 +178,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0.5rem;
-  background: #f8f9fa;
+  background: var(--background);
   border-radius: 6px;
 }
 
