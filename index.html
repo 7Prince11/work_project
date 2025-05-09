@@ -23,19 +23,29 @@
 
     <div class="portal">
         <nav class="portal-nav">
-            <!-- new collapse/expand button -->
             <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">
                 <svg viewBox="0 0 24 24">
                     <path d="M9 6l-1.4 1.4L12.2 12l-4.6 4.6L9 18l6-6z" />
                 </svg>
             </button>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#microsoft-news">Microsoft</a></li>
-                <li><a href="#cisa-news">CISA</a></li>
-                <li><a href="#redhat-news">Red Hat</a></li>
-                <li><a href="#trending-news">Trending</a></li>
-            </ul>
+            <div class="menu-sections">
+                <div class="menu-section">
+                    <div class="section-title">Using:</div>
+                    <ul id="usingList" class="draggable-list">
+                        <li draggable="true"><a href="#about">About</a></li>
+                        <li draggable="true"><a href="#microsoft-news">Microsoft</a></li>
+                        <li draggable="true"><a href="#cisa-news">CISA</a></li>
+                        <li draggable="true"><a href="#redhat-news">Red Hat</a></li>
+                        <li draggable="true"><a href="#trending-news">Trending</a></li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <div class="section-title">Not Using:</div>
+                    <ul id="notUsingList" class="draggable-list">
+                        <li class="placeholder">Nothing here</li>
+                    </ul>
+                </div>
+            </div>
         </nav>
 
         <main class="news-container" id="mainSections">
@@ -92,10 +102,8 @@
         </main>
     </div>
 
-    <!-- Scroll-to-Top -->
     <button id="scrollTopBtn" aria-label="Scroll to top">↑</button>
 
-    <!-- Top toolbar (slides down) -->
     <div class="top-toolbar hidden">
         <button class="icon-btn" data-action="reorder">
             <span>↕️</span><small>Reorder</small>
@@ -108,7 +116,6 @@
         </button>
     </div>
 
-    <!-- Popup -->
     <div id="iconPopup" class="icon-popup hidden">
         <div id="popupContent"></div>
         <div class="popup-actions">
