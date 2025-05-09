@@ -4,13 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
     "vulnerabilities-list"
   );
   const filterDropdown = document.getElementById("filter-dropdown");
+  const exportBtn = document.getElementById("export-btn");
 
   let vulnerabilitiesList = [];
   let originalVulnerabilities = [];
+  let displayedList = []; // ← holds whatever you just rendered
 
-  // Fetch and display data
+  // —— Fetch & display data ——
   fetch("http://localhost:3000/api/updates")
-    .then((response) => response.json())
+    .then((res) => res.json())
     .then((data) => {
       if (!data || data.message) {
         vulnerabilitiesListDiv.innerHTML = `<p class="error">${
@@ -19,55 +21,48 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Header information
-      const documentTitle =
-        data["cvrf:DocumentTitle"] || "Microsoft Security Bulletin";
-      const initialReleaseDate =
+      // header info (unchanged)…
+      const title = data["cvrf:DocumentTitle"] || "Microsoft Security Bulletin";
+      const date =
         data["cvrf:DocumentTracking"]?.["cvrf:InitialReleaseDate"] || "N/A";
-
       headerInformationDiv.innerHTML = `
-        <h3>${documentTitle}</h3>
+        <h3>${title}</h3>
         <p><strong>Initial Release:</strong> ${
-          initialReleaseDate !== "N/A"
-            ? new Date(initialReleaseDate).toLocaleDateString()
-            : "Not available"
+          date !== "N/A" ? new Date(date).toLocaleDateString() : "Not available"
         }</p>
       `;
 
-      // Process vulnerabilities
-      const vulnerabilities = data["vuln:Vulnerability"] || [];
-      vulnerabilitiesList = vulnerabilities
-        .filter((vuln) => vuln["vuln:Title"])
-        .map((vuln) => {
+      // map out your array
+      const vulns = data["vuln:Vulnerability"] || [];
+      vulnerabilitiesList = vulns
+        .filter((v) => v["vuln:Title"])
+        .map((v) => {
           let baseScore = "N/A";
           let temporalScore = "N/A";
           let exploited = false;
           let revisionDate = "N/A";
 
-          // Extract scores
-          const scoreSet = vuln["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"];
+          const scoreSet = v["vuln:CVSSScoreSets"]?.["vuln:ScoreSet"];
           if (scoreSet) {
-            const scores = Array.isArray(scoreSet) ? scoreSet[0] : scoreSet;
-            baseScore = scores["vuln:BaseScore"] || "N/A";
-            temporalScore = scores["vuln:TemporalScore"] || "N/A";
+            const s = Array.isArray(scoreSet) ? scoreSet[0] : scoreSet;
+            baseScore = s["vuln:BaseScore"] || baseScore;
+            temporalScore = s["vuln:TemporalScore"] || temporalScore;
           }
 
-          // Extract revision date
-          const revision = vuln["vuln:RevisionHistory"]?.["vuln:Revision"];
-          if (revision) {
-            revisionDate = Array.isArray(revision)
-              ? revision[0]?.["cvrf:Date"]
-              : revision["cvrf:Date"] || "N/A";
+          const rev = v["vuln:RevisionHistory"]?.["vuln:Revision"];
+          if (rev) {
+            revisionDate = Array.isArray(rev)
+              ? rev[0]?.["cvrf:Date"]
+              : rev["cvrf:Date"] || revisionDate;
           }
 
-          // Check exploit status
-          const threats = vuln["vuln:Threats"]?.["vuln:Threat"] || [];
-          exploited = threats.some((threat) =>
-            threat["vuln:Description"]?.includes("Exploited:Yes")
+          const threats = v["vuln:Threats"]?.["vuln:Threat"] || [];
+          exploited = threats.some((t) =>
+            t["vuln:Description"]?.includes("Exploited:Yes")
           );
 
           return {
-            title: vuln["vuln:Title"],
+            title: v["vuln:Title"],
             baseScore,
             temporalScore,
             exploited,
@@ -78,49 +73,34 @@ document.addEventListener("DOMContentLoaded", () => {
       originalVulnerabilities = [...vulnerabilitiesList];
       renderVulnerabilities(vulnerabilitiesList);
     })
-    .catch((error) => {
+    .catch((err) => {
       vulnerabilitiesListDiv.innerHTML = `
         <div class="vulnerability-card severe">
           <h4>Data Load Error</h4>
-          <p>${error.message}</p>
+          <p>${err.message}</p>
         </div>
       `;
     });
 
-  // Render vulnerabilities with animations
-  const renderVulnerabilities = (vulnerabilities) => {
+  // —— Render & track displayedList ——
+  function renderVulnerabilities(list) {
+    displayedList = list; // ← super important!
     vulnerabilitiesListDiv.innerHTML = "";
 
-    vulnerabilities.forEach((vuln, index) => {
+    list.forEach((v, i) => {
       const card = document.createElement("div");
-      card.className = "vulnerability-card";
-
-      // Determine severity class
-      let severityClass = "neutral";
-      if (vuln.baseScore !== "N/A") {
-        const score = parseFloat(vuln.baseScore);
-        severityClass =
-          score >= 7
-            ? "severe"
-            : score >= 4
-            ? "high"
-            : score > 0
-            ? "medium"
-            : "neutral";
-      }
-      card.classList.add(severityClass);
-
+      card.className = "vulnerability-card " + getSeverityClass(v.baseScore);
       card.innerHTML = `
-        <h4>${vuln.title}</h4>
+        <h4>${v.title}</h4>
         <div class="stats-grid">
           <div class="stat-item">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="var(--text);">
-              <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="var(--text)">
+              <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
               <path d="M12 15.57l-7-3.5V9l7 3.5 7-3.5v3.07l-7 3.5z"/>
             </svg>
             <div>
               <div class="stat-label">Base Score</div>
-              <div class="stat-value">${vuln.baseScore}</div>
+              <div class="stat-value">${v.baseScore}</div>
             </div>
           </div>
           <div class="stat-item">
@@ -130,12 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
             </svg>
             <div>
               <div class="stat-label">Temporal Score</div>
-              <div class="stat-value">${vuln.temporalScore}</div>
+              <div class="stat-value">${v.temporalScore}</div>
             </div>
           </div>
         </div>
-        <div class="status-badge ${vuln.exploited ? "exploited" : "safe"}">
-          ${vuln.exploited ? "⚠️ Actively Exploited" : "🛡️ Not Exploited"}
+        <div class="status-badge ${v.exploited ? "exploited" : "safe"}">
+          ${v.exploited ? "⚠️ Actively Exploited" : "🛡️ Not Exploited"}
         </div>
         <div class="date-info">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -143,29 +123,26 @@ document.addEventListener("DOMContentLoaded", () => {
             <path d="M16 2v4M8 2v4M3 14h18"/>
           </svg>
           ${
-            vuln.date === "N/A"
+            v.date === "N/A"
               ? "No Date Available"
-              : new Date(vuln.date).toLocaleDateString()
+              : new Date(v.date).toLocaleDateString()
           }
         </div>
       `;
-
       vulnerabilitiesListDiv.appendChild(card);
 
-      // Animate card entry
+      // animate in
       setTimeout(() => {
         card.style.opacity = "1";
         card.style.transform = "translateY(0)";
-      }, index * 150);
+      }, i * 100);
     });
-  };
+  }
 
-  // Filter functionality
-  filterDropdown.addEventListener("change", (event) => {
-    const filterValue = event.target.value;
+  // —— Filters (unchanged) ——
+  filterDropdown.addEventListener("change", (e) => {
     let sorted = [...originalVulnerabilities];
-
-    switch (filterValue) {
+    switch (e.target.value) {
       case "name":
         sorted.sort((a, b) => a.title.localeCompare(b.title));
         break;
@@ -173,10 +150,43 @@ document.addEventListener("DOMContentLoaded", () => {
         sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
         break;
       case "exploitability":
-        sorted = sorted.filter((vuln) => vuln.exploited);
+        sorted = sorted.filter((v) => v.exploited);
         break;
     }
-
     renderVulnerabilities(sorted);
   });
+
+  // —— Export CSV ——
+  exportBtn?.addEventListener("click", () => {
+    if (displayedList.length === 0) {
+      return alert("Nothing to export!");
+    }
+    const header = ["Title", "BaseScore", "TemporalScore", "Exploited", "Date"];
+    const rows = displayedList.map((v) =>
+      [
+        `"${v.title.replace(/"/g, '""')}"`,
+        v.baseScore,
+        v.temporalScore,
+        v.exploited ? "Yes" : "No",
+        `"${v.date}"`,
+      ].join(",")
+    );
+    const csv = [header.join(","), ...rows].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ms_updates.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // —— Severity helper (unchanged) ——
+  function getSeverityClass(score) {
+    const n = parseFloat(score);
+    if (n >= 7) return "severe";
+    if (n >= 4) return "high";
+    if (n > 0) return "medium";
+    return "neutral";
+  }
 });

@@ -65,6 +65,7 @@ header h1 {
 }
 .filter-container {
   position: relative;
+  padding-left: 55pc;
 }
 
 .filter-label {
@@ -406,4 +407,18 @@ header h1 {
 .back-button:hover::after {
   opacity: 1;
   right: 1.2rem;
+}
+.export-button {
+  padding: 0.6rem 1.2rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.export-button:hover {
+  background: #a00000;
 }
