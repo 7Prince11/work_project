@@ -7,7 +7,7 @@ body.dark-mode {
   --background: #121212;
   --light-bg: #1e1e1e;
   --text: #e0e0e0;
-  --primary: #979393;
+  --primary: #494949;
   --primary-dark: #600000;
   --toolbar-bg: #333;
 }
@@ -228,7 +228,7 @@ header.header h1 {
 /* Section titles */
 .news-section h2 {
   font-size: 1.5rem;
-  color: var(--primary);
+  color: var(--text);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--primary);
@@ -251,7 +251,7 @@ header.header h1 {
 }
 .about-text {
   font-style: italic;
-  color: #555;
+  color: var(--text);
   line-height: 1.5;
 }
 

@@ -98,7 +98,7 @@ body {
   gap: 1rem;
   padding: 1rem;
   margin: 1.5rem;
-  background: white;
+  background-color: var(--light-bg);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
@@ -110,9 +110,22 @@ body {
 .control-label {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text);
   margin-bottom: 0.3rem;
   display: block;
+}
+
+#time-filter,
+#sort-dropdown,
+#search-input {
+  background-color: var(--header-height);
+  color: var(--text);
+}
+
+#time-filter,
+#sort-dropdown {
+  background-color: var(--light-bg); /* light background for list */
+  color: var(--text); /* dark text in the open list */
 }
 
 .control-dropdown,
@@ -122,7 +135,7 @@ body {
   font-size: 0.9rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
-  background: white no-repeat right 0.75rem center/10px 10px;
+
   transition: all 0.2s ease;
 }
 
@@ -175,7 +188,7 @@ body {
 }
 
 .trending-card {
-  background: white;
+  background: var(--light-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
