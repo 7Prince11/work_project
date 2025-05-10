@@ -134,6 +134,8 @@ header.header h1 {
   justify-content: space-around;
   padding: 0.5rem;
   gap: 1rem;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   transform: translateY(-100%);
   transition: transform 0.3s ease, background 0.3s ease;
   z-index: 200;
@@ -141,7 +143,7 @@ header.header h1 {
 
 .top-toolbar.visible {
   transform: translateY(0);
-  background: var(--toolbar-bg);
+  background: var(--primary);
 }
 
 .top-toolbar .icon-btn {
@@ -567,3 +569,105 @@ header.header h1 {
     transform: scale(1.1);
   }
 }
+.portal-nav.collapsed .menu-sections {
+  display: none;
+}
+
+.theme-toggle {
+  display: inline-flex; /* match your other .icon-btn */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px; /* same footprint as other buttons */
+  padding: 0;
+  user-select: none;
+  cursor: pointer;
+}
+
+.theme-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-slider {
+  margin-top: 6px;
+  width: 32px;
+  height: 16px;
+  background: #ccc;
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.3s ease;
+  margin-bottom: 2px; /* small gap before the label */
+}
+
+.theme-slider::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle input:checked + .theme-slider {
+  background: var(--primary-dark);
+}
+.theme-toggle input:checked + .theme-slider::before {
+  transform: translateX(16px);
+}
+
+.theme-label {
+  font-size: 0.25rem;
+  color: var(--text);
+  pointer-events: none;
+  margin: 0; /* no extra top-margin needed */
+}
+
+body.dark-mode .theme-label {
+  color: #fff;
+}
+
+/* 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+ 
+#mainSections .news-section {
+  opacity: 0;
+  transform: translateX(-50px);
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+ 
+#mainSections .news-section:nth-of-type(1) {
+  animation-delay: 0.1s;
+}
+#mainSections .news-section:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
+#mainSections .news-section:nth-of-type(3) {
+  animation-delay: 0.3s;
+}
+#mainSections .news-section:nth-of-type(4) {
+  animation-delay: 0.4s;
+}
+#mainSections .news-section:nth-of-type(5) {
+  animation-delay: 0.5s;
+}
+#mainSections .news-section.editing,
+#mainSections .news-section.dragging {
+  animation: none !important;
+  transform: none !important;
+} */

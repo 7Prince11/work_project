@@ -8,6 +8,23 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebarNav.classList.toggle("collapsed")
   );
 
+  const themeToggle = document.getElementById("themeToggle");
+  const themeLabel = document.querySelector(".theme-label");
+
+  // initialize from localStorage
+  const isDark = localStorage.getItem("theme") === "dark";
+  themeToggle.checked = isDark;
+  document.body.classList.toggle("dark-mode", isDark);
+  themeLabel.textContent = `Theme: ${isDark ? "Dark" : "Light"}`;
+
+  // on user toggle
+  themeToggle.addEventListener("change", (e) => {
+    const dark = e.target.checked;
+    document.body.classList.toggle("dark-mode", dark);
+    localStorage.setItem("theme", dark ? "dark" : "light");
+    themeLabel.textContent = `Theme: ${dark ? "Dark" : "Light"}`;
+  });
+
   const settingsBtn = document.getElementById("settingsBtn");
   const topToolbar = document.querySelector(".top-toolbar");
   const iconBtns = document.querySelectorAll(
