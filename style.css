@@ -254,8 +254,8 @@ header.header h1 {
   background: var(--light-bg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin: 2rem 0;
-  padding: 1.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
   position: relative;
   transition: transform 0.3s ease;
 }
@@ -395,7 +395,7 @@ header.header h1 {
 }
 
 .news-card h4 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 }
 
@@ -424,11 +424,11 @@ header.header h1 {
 
 .score-badge {
   display: inline-block;
-  padding: 0.3rem 0.8rem;
+  padding: 0.2rem 0.8rem;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
 }
 
 .severe {
