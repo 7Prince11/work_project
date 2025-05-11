@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVD CVE Database</title>
+    <link rel="stylesheet" href="nvd.css">
+    <link rel="stylesheet" href="../style.css" />
+    <script src="../theme.js"></script>
+
+    <link rel="icon" href="data:image/svg+xml;utf8,
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+      <circle cx='50' cy='50' r='50' fill='%23800000'/>
+      <path d='M50 18 L72 36 L68 70 L50 82 L32 70 L28 36 Z' fill='%23ffffff'/>
+    </svg>" type="image/svg+xml" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="back-button-container">
+            <a href="../index.html" class="back-button">Back to Main Page</a>
+        </div>
+        <h1>National Vulnerability Database</h1>
+    </header>
+
+    <main class="main-container">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="filter-group">
+                <label for="severity-filter" class="control-label">Severity:</label>
+                <select id="severity-filter" class="control-dropdown">
+                    <option value="all">All Severities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="sort-dropdown" class="control-label">Sort By:</label>
+                <select id="sort-dropdown" class="control-dropdown">
+                    <option value="date">Latest First</option>
+                    <option value="score">CVSS Score</option>
+                    <option value="cve">CVE ID</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search-input" class="control-label">Search:</label>
+                <input type="text" id="search-input" class="control-dropdown" placeholder="Search CVEs...">
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-number" id="total-cves">0</div>
+                <div class="stat-label">Total CVEs</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-number" id="critical-count">0</div>
+                <div class="stat-label">Critical</div>
+            </div>
+            <div class="stat-card high">
+                <div class="stat-number" id="high-count">0</div>
+                <div class="stat-label">High</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="stat-number" id="medium-count">0</div>
+                <div class="stat-label">Medium</div>
+            </div>
+            <div class="stat-card low">
+                <div class="stat-number" id="low-count">0</div>
+                <div class="stat-label">Low</div>
+            </div>
+        </div>
+
+        <!-- Vulnerability Container -->
+        <div id="vulnerability-container" class="vulnerability-grid">
+            <div class="loading-animation"></div>
+        </div>
+    </main>
+    <script src="nvd.js"></script>
+</body>
+
+</html>

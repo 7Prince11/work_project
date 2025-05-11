@@ -1,0 +1,429 @@
+/* NVD Page Styles */
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  line-height: 1.6;
+}
+
+/* Header */
+.header {
+  background-color: var(--primary);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #600000 0%, #2a5ea7 100%);
+}
+
+.header h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Control Panel */
+.control-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  background: var(--light-bg);
+  margin: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.control-dropdown,
+#search-input {
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: var(--background);
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  color: var(--text);
+}
+
+.control-dropdown:hover,
+#search-input:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+/* Stats Summary */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--light-bg);
+  padding: 0.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  border-top: 4px solid transparent;
+}
+
+.stat-card.critical {
+  background: #8b0000; /* Dark red */
+  color: white;
+  border-top: none;
+}
+
+.stat-card.high {
+  background: #dc3545; /* red */
+  color: white;
+  border-top: none;
+}
+
+.stat-card.medium {
+  background: #ffc107; /* Yellow */
+  color: #000;
+  border-top: none;
+}
+
+.stat-card.low {
+  background: #28a745; /* Green */
+  color: white;
+  border-top: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: inherit;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+/* Vulnerability Grid */
+.vulnerability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem 2rem;
+}
+
+.vulnerability-card {
+  background: var(--light-bg) !important;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.vulnerability-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Colored top border indicator */
+.vulnerability-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+}
+
+.vulnerability-card.critical::before {
+  background: #8b0000; /* Dark red */
+}
+
+.vulnerability-card.high::before {
+  background: #dc3545; /* Red */
+}
+
+.vulnerability-card.medium::before {
+  background: #ffc107; /* Yellow */
+}
+
+.vulnerability-card.low::before {
+  background: #28a745; /* Green */
+}
+
+.cve-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.cve-id {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.cvss-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.cvss-badge.critical {
+  background: #8b0000; /* Dark red */
+}
+
+.cvss-badge.high {
+  background: #dc3545; /* Red */
+}
+
+.cvss-badge.medium {
+  background: #ffc107;
+  color: #000;
+}
+
+.cvss-badge.low {
+  background: #28a745;
+}
+
+.description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--background);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.date-info {
+  font-size: 0.85rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Reference Button Styling */
+.date-info a,
+.vulnerability-card a[href],
+.reference-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 20px;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.date-info a::before,
+.vulnerability-card a[href]::before,
+.reference-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.date-info a:hover,
+.vulnerability-card a[href]:hover,
+.reference-link:hover {
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(128, 0, 0, 0.2);
+}
+
+.date-info a:hover::before,
+.vulnerability-card a[href]:hover::before,
+.reference-link:hover::before {
+  width: 100%;
+}
+
+/* Add arrow icon to reference links */
+.date-info a::after,
+.vulnerability-card a[href]::after,
+.reference-link::after {
+  content: "→";
+  margin-left: 0.2rem;
+  transition: transform 0.3s ease;
+}
+
+.date-info a:hover::after,
+.vulnerability-card a[href]:hover::after,
+.reference-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* Dark mode support */
+body.dark-mode .date-info a,
+body.dark-mode .vulnerability-card a[href],
+body.dark-mode .reference-link {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+body.dark-mode .date-info a::before,
+body.dark-mode .vulnerability-card a[href]::before,
+body.dark-mode .reference-link::before {
+  background: #ff6b6b;
+}
+
+body.dark-mode .date-info a:hover,
+body.dark-mode .vulnerability-card a[href]:hover,
+body.dark-mode .reference-link:hover {
+  color: var(--text);
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.2);
+}
+
+/* Back Button */
+.back-button-container {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 100;
+}
+
+.back-button {
+  position: relative;
+  background-color: transparent;
+  color: white;
+  padding: 0.8rem 2rem 0.8rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.back-button::before {
+  content: "←";
+  transition: transform 0.3s ease;
+}
+
+.back-button:hover {
+  background: white;
+  color: #800000;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding-right: 2.5rem;
+  padding-left: 2rem;
+}
+
+.back-button:hover::before {
+  transform: translateX(-5px);
+}
+
+/* Loading Animation */
+.loading-animation {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-animation::after {
+  content: "";
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--background);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .control-panel {
+    grid-template-columns: 1fr;
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 1rem;
+  }
+
+  .vulnerability-grid {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1rem;
+  }
+}

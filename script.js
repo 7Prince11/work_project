@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "#microsoft-news",
     "#cisa-news",
     "#redhat-news",
+    "#nvd-news", // Add this line
     "#trending-news",
   ];
 
@@ -98,31 +99,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const usingList = document.getElementById("usingList");
     const notUsingList = document.getElementById("notUsingList");
     let state = JSON.parse(localStorage.getItem("menuState"));
+
+    // First check if state exists
     if (!state) {
       state = { using: [...defaultMenuOrder], notUsing: [] };
-      localStorage.setItem("menuState", JSON.stringify(state));
     }
-    // sort by default order
+
+    // Then check for missing NVD
+    if (
+      !state.using.includes("#nvd-news") &&
+      !state.notUsing.includes("#nvd-news")
+    ) {
+      state.using.push("#nvd-news");
+    }
+
+    // Sort by default order
     state.using.sort(
       (a, b) => defaultMenuOrder.indexOf(a) - defaultMenuOrder.indexOf(b)
     );
     state.notUsing.sort(
       (a, b) => defaultMenuOrder.indexOf(a) - defaultMenuOrder.indexOf(b)
     );
+
+    // Save sorted state
+    localStorage.setItem("menuState", JSON.stringify(state));
+
+    // Clear and rebuild lists
     usingList.innerHTML = "";
     notUsingList.innerHTML = "";
     state.using.forEach((href) => usingList.appendChild(createMenuItem(href)));
     state.notUsing.forEach((href) =>
       notUsingList.appendChild(createMenuItem(href))
     );
+
     updateListStates();
     updateSectionVisibility();
+
+    // Add event listeners
     document
       .querySelectorAll(".draggable-list li:not(.placeholder)")
       .forEach((item) => {
         item.addEventListener("dragstart", handleMenuDragStart);
         item.addEventListener("dragend", handleMenuDragEnd);
       });
+
     [usingList, notUsingList].forEach((list) => {
       list.addEventListener("dragover", handleMenuDragOver);
       list.addEventListener("drop", handleMenuDrop);
@@ -481,6 +501,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function fetchNvdUpdates() {
+    setLoading("nvd-content");
+    try {
+      const data = await (await fetch("http://localhost:3000/api/nvd")).json();
+      const list = data.slice(0, 4).map((vuln) => ({
+        id: vuln.id,
+        description: vuln.description.substring(0, 100) + "...",
+        cvssScore: vuln.cvssScore,
+        severity: getSeverity(vuln.cvssScore),
+        date: new Date(vuln.publishedDate),
+      }));
+
+      document.getElementById("nvd-content").innerHTML = list
+        .map(
+          (vuln) => `
+        <div class="news-card">
+          <div class="score-badge ${vuln.severity}">${vuln.id}</div>
+          <h4>${vuln.description}</h4>
+          <div class="meta-info">
+            <span>CVSS: ${vuln.cvssScore}</span>
+            <span>📅 ${vuln.date.toLocaleDateString()}</span>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+    } catch (e) {
+      console.error(e);
+      document.getElementById("nvd-content").innerHTML =
+        '<div class="news-card">Error loading NVD data</div>';
+    }
+  }
+
   // apply saved section order
   const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
   if (savedOrder.length) {
@@ -489,11 +542,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (sec) mainContainer.appendChild(sec);
     });
   }
-
+  // Helper function for severity
+  const getSeverity = (score) => {
+    if (score === "N/A") return "neutral";
+    const n = parseFloat(score);
+    if (n >= 9.0) return "severe";
+    if (n >= 7.0) return "high";
+    if (n >= 4.0) return "medium";
+    return "neutral";
+  };
   initializeMenuDragDrop();
   updateSectionVisibility();
   fetchMicrosoftUpdates();
   fetchCisaUpdates();
   fetchRedHatUpdates();
+  fetchNvdUpdates();
   fetchTrendingArticles();
 });

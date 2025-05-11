@@ -147,6 +147,72 @@ app.get("/api/redhat", async (req, res) => {
   }
 });
 
+// Add this endpoint to your server.js file
+
+app.get("/api/nvd", async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=50`
+    );
+
+    if (!response.ok) {
+      return res.status(502).json({
+        error: "Failed to fetch NVD data",
+        status: response.status,
+      });
+    }
+
+    const data = await response.json();
+
+    const formattedVulnerabilities = data.vulnerabilities.map((item) => {
+      const cve = item.cve;
+
+      let cvssScore = "N/A";
+      if (cve.metrics?.cvssMetricV31?.[0]) {
+        cvssScore = cve.metrics.cvssMetricV31[0].cvssData.baseScore;
+      } else if (cve.metrics?.cvssMetricV30?.[0]) {
+        cvssScore = cve.metrics.cvssMetricV30[0].cvssData.baseScore;
+      } else if (cve.metrics?.cvssMetricV2?.[0]) {
+        cvssScore = cve.metrics.cvssMetricV2[0].cvssData.baseScore;
+      }
+
+      const description =
+        cve.descriptions?.[0]?.value || "No description available";
+
+      const tags = [];
+      if (cve.weaknesses) {
+        cve.weaknesses.forEach((weakness) => {
+          weakness.description?.forEach((desc) => {
+            if (desc.value?.startsWith("CWE-")) {
+              tags.push(desc.value);
+            }
+          });
+        });
+      }
+
+      const references =
+        cve.references?.map((ref) => ref.url).slice(0, 3) || [];
+
+      return {
+        id: cve.id,
+        description,
+        cvssScore: cvssScore.toString(),
+        publishedDate: cve.published,
+        tags,
+        references,
+      };
+    });
+
+    res.json(formattedVulnerabilities);
+  } catch (error) {
+    console.error("NVD API Error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

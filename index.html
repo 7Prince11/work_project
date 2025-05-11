@@ -36,6 +36,7 @@
                         <li draggable="true"><a href="#microsoft-news">Microsoft</a></li>
                         <li draggable="true"><a href="#cisa-news">CISA</a></li>
                         <li draggable="true"><a href="#redhat-news">Red Hat</a></li>
+                        <li draggable="true"><a href="#nvd-news">Nvd</a></li> <!-- ADD THIS LINE -->
                         <li draggable="true"><a href="#trending-news">Trending</a></li>
                     </ul>
                 </div>
@@ -87,6 +88,16 @@
                 </div>
                 <button class="view-more-button" onclick="redirectTo('red_hat/redhat.html')">
                     View More Red Hat Updates
+                </button>
+            </section>
+
+            <section id="nvd-news" class="news-section">
+                <h2>NVD CVE Database</h2>
+                <div id="nvd-content" class="news-content">
+                    <div class="loading-animation"></div>
+                </div>
+                <button class="view-more-button" onclick="redirectTo('nvd/nvd.html')">
+                    View More NVD Vulnerabilities
                 </button>
             </section>
 
