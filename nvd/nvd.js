@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const highCount = document.getElementById("high-count");
   const mediumCount = document.getElementById("medium-count");
   const lowCount = document.getElementById("low-count");
+  document
+    .getElementById("nvd-export-btn")
+    ?.addEventListener("click", exportToCSV);
 
   let vulnerabilities = [];
   let filteredVulnerabilities = [];
@@ -172,6 +175,52 @@ document.addEventListener("DOMContentLoaded", () => {
       }, index * 100);
     });
   };
+
+  function exportToCSV() {
+    // Get the currently filtered vulnerabilities
+    const data = filteredVulnerabilities || [];
+
+    if (data.length === 0) {
+      return alert("No data available to export!");
+    }
+
+    // Define CSV headers
+    const header = [
+      "CVE ID",
+      "CVSS Score",
+      "Severity",
+      "Published Date",
+      "Description",
+      "Tags",
+    ];
+
+    // Create CSV rows
+    const rows = data.map((vuln) => {
+      const severity = getSeverity(vuln.cvssScore);
+      return [
+        vuln.id,
+        vuln.cvssScore,
+        severity,
+        new Date(vuln.publishedDate).toLocaleDateString(),
+        `"${vuln.description.replace(/"/g, '""')}"`,
+        vuln.tags.join(", "),
+      ]
+        .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+        .join(",");
+    });
+
+    // Combine headers and rows
+    const csv = [header.join(","), ...rows].join("\r\n");
+
+    // Create download link
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "nvd_vulnerabilities.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   // Event listeners
   severityFilter.addEventListener("change", applyFiltersAndSort);

@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const severityToggle = document.getElementById("severity-toggle");
   const severityArrow = document.getElementById("severity-arrow");
 
+  document
+    .getElementById("redhat-export-btn")
+    ?.addEventListener("click", () => {
+      exportToCSV();
+    });
+
   let vulnerabilitiesList = [];
   let originalVulnerabilities = [];
 
@@ -202,6 +208,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderVulnerabilities(updatedList);
+  }
+  function exportToCSV() {
+    // Get the current filtered/displayed vulnerabilities
+    const data = vulnerabilitiesList || [];
+
+    if (data.length === 0) {
+      return alert("No data available to export!");
+    }
+
+    // Define CSV headers
+    const header = [
+      "ID",
+      "Title",
+      "Severity",
+      "CVSS Score",
+      "Date",
+      "Exploited",
+      "Affected Packages",
+    ];
+
+    // Create CSV rows
+    const rows = data.map((v) =>
+      [
+        v.id || "",
+        v.title || "",
+        v.severity || "",
+        v.baseScore || "",
+        v.date || "",
+        v.isExploited ? "Yes" : "No",
+        v.affectedPackages || "",
+      ]
+        .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+        .join(",")
+    );
+
+    // Combine headers and rows
+    const csv = [header.join(","), ...rows].join("\r\n");
+
+    // Create download link
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "redhat_vulnerabilities.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   }
   severityToggle.addEventListener("click", () => {
     // If already expanded, collapse it

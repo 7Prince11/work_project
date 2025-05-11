@@ -26,34 +26,44 @@
 
     <main class="main-container">
         <!-- Control Panel -->
+
+        <!-- Replace your control-panel in nvd.html with this -->
         <div class="control-panel">
-            <div class="filter-group">
-                <label for="severity-filter" class="control-label">Severity:</label>
-                <select id="severity-filter" class="control-dropdown">
-                    <option value="all">All Severities</option>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
+            <!-- Left side: Severity filter -->
+            <div class="left-controls">
+                <div class="filter-group">
+                    <label for="severity-filter" class="control-label">Severity:</label>
+                    <select id="severity-filter" class="control-dropdown">
+                        <option value="all">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="filter-group">
-                <label for="sort-dropdown" class="control-label">Sort By:</label>
-                <select id="sort-dropdown" class="control-dropdown">
-                    <option value="date">Latest First</option>
-                    <option value="score">CVSS Score</option>
-                    <option value="cve">CVE ID</option>
-                </select>
-            </div>
+            <!-- Right side: Sort, Search and Export -->
+            <div class="right-controls">
+                <div class="filter-group">
+                    <label for="sort-dropdown" class="control-label">Sort By:</label>
+                    <select id="sort-dropdown" class="control-dropdown">
+                        <option value="date">Latest First</option>
+                        <option value="score">CVSS Score</option>
+                        <option value="cve">CVE ID</option>
+                    </select>
+                </div>
 
-            <div class="filter-group">
-                <label for="search-input" class="control-label">Search:</label>
-                <input type="text" id="search-input" class="control-dropdown" placeholder="Search CVEs...">
+                <div class="filter-group">
+                    <label for="search-input" class="control-label">Search:</label>
+                    <input type="text" id="search-input" class="control-dropdown" placeholder="Search CVEs...">
+                </div>
+
+                <button id="nvd-export-btn" class="export-button">Export CSV</button>
             </div>
         </div>
 
-        <!-- Stats Summary -->
+
         <!-- Stats Summary -->
         <div class="stats-summary">
             <div class="stat-card">

@@ -25,27 +25,34 @@
     </header>
 
     <main class="news-container">
+        <!-- Replace the entire header-filter-container section -->
         <div class="header-filter-container">
-            <!-- Header Information -->
+            <!-- Left side: Title and last fetch info ONLY -->
             <div id="header-information" class="header-information">
                 <h3 id="dynamic-title">Red Hat Vulnerabilities</h3>
                 <p><strong>Last Fetch:</strong> <span id="last-fetch-date">Loading...</span></p>
             </div>
 
-            <!-- Filter & Search Container -->
-            <div class="filter-container">
-                <label for="search-input" class="filter-label" style="margin-right: 0.5rem;">Search:</label>
-                <input type="text" id="search-input" class="filter-dropdown" placeholder="Search vulnerabilities..."
-                    style="margin-right: 1rem;" />
+            <!-- Right side: All controls in a single row -->
+            <div class="all-controls">
+                <div class="search-control">
+                    <label for="search-input" class="filter-label">Search:</label>
+                    <input type="text" id="search-input" class="filter-dropdown"
+                        placeholder="Search vulnerabilities..." />
+                </div>
 
-                <label for="filter-dropdown" class="filter-label">Filter By:</label>
-                <select id="filter-dropdown" class="filter-dropdown">
-                    <option value="none">None</option>
-                    <option value="title">Title</option>
-                    <option value="date">Date</option>
-                    <option value="severity">Severity</option>
-                    <option value="exploited">Exploited</option>
-                </select>
+                <div class="filter-control">
+                    <label for="filter-dropdown" class="filter-label">Filter By:</label>
+                    <select id="filter-dropdown" class="filter-dropdown">
+                        <option value="none">None</option>
+                        <option value="title">Title</option>
+                        <option value="date">Date</option>
+                        <option value="severity">Severity</option>
+                        <option value="exploited">Exploited</option>
+                    </select>
+                </div>
+
+                <button id="redhat-export-btn" class="export-button">Export CSV</button>
             </div>
         </div>
 

@@ -61,9 +61,6 @@ header h1 {
   padding: 0.7rem 1.2rem;
   border: 2px solid #e2e8f0;
   border-radius: 6px;
-  background: white
-    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
-    no-repeat right 0.75rem center/10px 10px;
   appearance: none;
   transition: all 0.25s ease;
 }
@@ -507,4 +504,77 @@ p {
 .arrow-expanded {
   /* We'll just rotate the arrow or swap it for an up arrow via JS */
   transform: rotate(0deg);
+}
+/* Add or update in redhat.css */
+.header-filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  margin: 2rem;
+  background: var(--light-bg);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.header-information {
+  flex-shrink: 0;
+}
+
+.all-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.search-control,
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.export-button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.export-button:hover {
+  background: #a00000;
+}
+
+/* Make input widths consistent */
+#search-input {
+  width: 200px;
+}
+
+#filter-dropdown {
+  width: 110px;
+  background: white
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
+    no-repeat right 0.75rem center/10px 10px;
+}
+
+@media (max-width: 992px) {
+  .header-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .all-controls {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 }
