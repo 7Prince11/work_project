@@ -12,6 +12,9 @@ body.dark-mode {
   --primary-dark: #600000;
   --toolbar-bg: #333;
 }
+.fifth-item {
+  display: none;
+}
 
 :root {
   --primary: #800000;

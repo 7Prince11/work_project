@@ -4,9 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sidebarNav = document.querySelector(".portal-nav");
   const sidebarToggle = document.getElementById("sidebarToggle");
-  sidebarToggle.addEventListener("click", () =>
-    sidebarNav.classList.toggle("collapsed")
-  );
+
+  // Modified toggle listener to show/hide fifth items
+  sidebarToggle.addEventListener("click", () => {
+    const isCollapsed = sidebarNav.classList.toggle("collapsed");
+
+    // Show/hide fifth items based on sidebar state
+    document.querySelectorAll(".fifth-item").forEach((item) => {
+      item.style.display = isCollapsed ? "block" : "none";
+    });
+  });
+
+  // Initialize fifth items visibility based on sidebar state
+  const isCollapsedOnLoad = sidebarNav.classList.contains("collapsed");
+  document.querySelectorAll(".fifth-item").forEach((item) => {
+    item.style.display = isCollapsedOnLoad ? "block" : "none";
+  });
 
   const themeToggle = document.getElementById("themeToggle");
   const themeLabel = document.querySelector(".theme-label");
@@ -88,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "#microsoft-news",
     "#cisa-news",
     "#redhat-news",
-    "#nvd-news", // Add this line
+    "#nvd-news",
     "#trending-news",
   ];
 
@@ -394,30 +407,34 @@ document.addEventListener("DOMContentLoaded", () => {
             v["vuln:RevisionHistory"]?.["vuln:Revision"]?.[0]?.["cvrf:Date"] ||
             "N/A",
         }))
-        .slice(0, 4);
-      document.getElementById("microsoft-content").innerHTML = list
+        .slice(0, 5); // Get 5 items instead of 4
+
+      // Generate HTML for all 5 items with the 5th having the fifth-item class
+      const itemsHtml = list
         .map(
-          (v) => `
-          <div class="news-card">
-            <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
+          (v, index) => `
+        <div class="news-card ${index === 4 ? "fifth-item" : ""}">
+          <div class="score-badge ${getSeverityClass(v.baseScore)}">CVSS: ${
             v.baseScore
           }</div>
-            <h4>${v.title}</h4>
-            <div class="meta-info">
-              <span class="status-dot ${
-                v.exploited ? "exploited" : "safe"
-              }"></span>
-              ${v.exploited ? "Exploited" : "Not Exploited"}
-              <span>📅${
-                v.date === "N/A"
-                  ? "No Date"
-                  : new Date(v.date).toLocaleDateString()
-              }</span>
-            </div>
+          <h4>${v.title}</h4>
+          <div class="meta-info">
+            <span class="status-dot ${
+              v.exploited ? "exploited" : "safe"
+            }"></span>
+            ${v.exploited ? "Exploited" : "Not Exploited"}
+            <span>📅${
+              v.date === "N/A"
+                ? "No Date"
+                : new Date(v.date).toLocaleDateString()
+            }</span>
           </div>
-        `
+        </div>
+      `
         )
         .join("");
+
+      document.getElementById("microsoft-content").innerHTML = itemsHtml;
     } catch (e) {
       console.error(e);
     }
@@ -432,17 +449,21 @@ document.addEventListener("DOMContentLoaded", () => {
           title: v.vulnerabilityName,
           date: new Date(v.dateAdded),
         }))
-        .slice(0, 4);
-      document.getElementById("cisa-content").innerHTML = list
+        .slice(0, 5); // Get 5 items instead of 4
+
+      // Generate HTML with the 5th item having the fifth-item class
+      const itemsHtml = list
         .map(
-          (u) => `
-          <div class="news-card">
-            <h4>${u.title}</h4>
-            <div class="meta-info">📅${u.date.toLocaleDateString()}</div>
-          </div>
-        `
+          (u, index) => `
+        <div class="news-card ${index === 4 ? "fifth-item" : ""}">
+          <h4>${u.title}</h4>
+          <div class="meta-info">📅${u.date.toLocaleDateString()}</div>
+        </div>
+      `
         )
         .join("");
+
+      document.getElementById("cisa-content").innerHTML = itemsHtml;
     } catch (e) {
       console.error(e);
     }
@@ -454,21 +475,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await (
         await fetch("http://localhost:3000/api/redhat")
       ).json();
-      const list = data.filter((v) => v.title).slice(0, 4);
-      document.getElementById("redhat-content").innerHTML = list
+      const list = data.filter((v) => v.title).slice(0, 5); // Get 5 items instead of 4
+
+      // Generate HTML with the 5th item having the fifth-item class
+      const itemsHtml = list
         .map(
-          (v) => `
-          <div class="news-card">
-            <h4>${v.title}</h4>
-            <div class="meta-info">📅${
-              v.publicDate
-                ? new Date(v.publicDate).toLocaleDateString()
-                : "No Date"
-            }</div>
-          </div>
-        `
+          (v, index) => `
+        <div class="news-card ${index === 4 ? "fifth-item" : ""}">
+          <h4>${v.title}</h4>
+          <div class="meta-info">📅${
+            v.publicDate
+              ? new Date(v.publicDate).toLocaleDateString()
+              : "No Date"
+          }</div>
+        </div>
+      `
         )
         .join("");
+
+      document.getElementById("redhat-content").innerHTML = itemsHtml;
     } catch (e) {
       console.error(e);
     }
@@ -483,19 +508,23 @@ document.addEventListener("DOMContentLoaded", () => {
           `https://newsapi.org/v2/everything?q=cybersecurity&apiKey=${apiKey}`
         )
       ).json();
-      const list = (data.articles || []).slice(0, 4);
-      document.getElementById("trending-content").innerHTML = list
+      const list = (data.articles || []).slice(0, 5); // Get 5 items instead of 4
+
+      // Generate HTML with the 5th item having the fifth-item class
+      const itemsHtml = list
         .map(
-          (a) => `
-          <div class="news-card">
-            <h4>${a.title}</h4>
-            <div class="meta-info">📅${new Date(
-              a.publishedAt
-            ).toLocaleDateString()}</div>
-          </div>
-        `
+          (a, index) => `
+        <div class="news-card ${index === 4 ? "fifth-item" : ""}">
+          <h4>${a.title}</h4>
+          <div class="meta-info">📅${new Date(
+            a.publishedAt
+          ).toLocaleDateString()}</div>
+        </div>
+      `
         )
         .join("");
+
+      document.getElementById("trending-content").innerHTML = itemsHtml;
     } catch (e) {
       console.error(e);
     }
@@ -505,7 +534,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoading("nvd-content");
     try {
       const data = await (await fetch("http://localhost:3000/api/nvd")).json();
-      const list = data.slice(0, 4).map((vuln) => ({
+      const list = data.slice(0, 5).map((vuln) => ({
+        // Get 5 items instead of 4
         id: vuln.id,
         description: vuln.description.substring(0, 100) + "...",
         cvssScore: vuln.cvssScore,
@@ -513,10 +543,11 @@ document.addEventListener("DOMContentLoaded", () => {
         date: new Date(vuln.publishedDate),
       }));
 
-      document.getElementById("nvd-content").innerHTML = list
+      // Generate HTML with the 5th item having the fifth-item class
+      const itemsHtml = list
         .map(
-          (vuln) => `
-        <div class="news-card">
+          (vuln, index) => `
+        <div class="news-card ${index === 4 ? "fifth-item" : ""}">
           <div class="score-badge ${vuln.severity}">${vuln.id}</div>
           <h4>${vuln.description}</h4>
           <div class="meta-info">
@@ -527,6 +558,8 @@ document.addEventListener("DOMContentLoaded", () => {
       `
         )
         .join("");
+
+      document.getElementById("nvd-content").innerHTML = itemsHtml;
     } catch (e) {
       console.error(e);
       document.getElementById("nvd-content").innerHTML =
@@ -534,14 +567,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // apply saved section order
-  const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
-  if (savedOrder.length) {
-    savedOrder.forEach((id) => {
-      const sec = document.getElementById(id);
-      if (sec) mainContainer.appendChild(sec);
-    });
-  }
   // Helper function for severity
   const getSeverity = (score) => {
     if (score === "N/A") return "neutral";
@@ -551,6 +576,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (n >= 4.0) return "medium";
     return "neutral";
   };
+
+  // apply saved section order
+  const savedOrder = JSON.parse(localStorage.getItem("sectionOrder") || "[]");
+  if (savedOrder.length) {
+    savedOrder.forEach((id) => {
+      const sec = document.getElementById(id);
+      if (sec) mainContainer.appendChild(sec);
+    });
+  }
+
   initializeMenuDragDrop();
   updateSectionVisibility();
   fetchMicrosoftUpdates();
