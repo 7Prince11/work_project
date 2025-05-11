@@ -33,6 +33,23 @@ body {
   font-weight: 600;
   letter-spacing: -0.5px;
 }
+.header-filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  margin: 1rem 2rem;
+  background: var(--light-bg);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto; /* Push to right side */
+}
 
 /* Back Button */
 .back-button-container {
@@ -112,7 +129,9 @@ body {
 
 /* Control Panel */
 .control-panel {
-  display: grid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(20px, 2fr));
   gap: 1.5rem;
   padding: 2rem;
@@ -253,4 +272,24 @@ body {
   .vulnerability-grid {
     padding: 0 1rem 1rem;
   }
+}
+/* This should already be in your CSS, but ensure it's applied to your CISA button */
+.export-button {
+  width: auto;
+  min-width: 100px;
+  max-width: 120px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.export-button:hover {
+  background: #a00000;
 }

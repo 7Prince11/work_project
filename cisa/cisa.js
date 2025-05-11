@@ -121,6 +121,53 @@ document.addEventListener("DOMContentLoaded", () => {
     sortVulnerabilities(e.target.value)
   );
 
+  // Add this near your other event listeners
+  document.getElementById("cisa-export-btn")?.addEventListener("click", () => {
+    exportCisaToCSV();
+  });
+
+  // Add this function to your JavaScript
+  function exportCisaToCSV() {
+    // Get the current filtered/displayed vulnerabilities
+    const data = filteredVulnerabilities || [];
+
+    if (data.length === 0) {
+      return alert("No data available to export!");
+    }
+
+    // Define CSV headers
+    const header = [
+      "CVE ID",
+      "Vulnerability Name",
+      "Date Added",
+      "Required Action",
+    ];
+
+    // Create CSV rows
+    const rows = data.map((v) =>
+      [
+        v.cveID || "",
+        v.vulnerabilityName || "",
+        v.dateAdded ? new Date(v.dateAdded).toLocaleDateString() : "",
+        v.requiredAction || "",
+      ]
+        .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+        .join(",")
+    );
+
+    // Combine headers and rows
+    const csv = [header.join(","), ...rows].join("\r\n");
+
+    // Create download link
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cisa_vulnerabilities.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   // Initial Load
   fetchVulnerabilities();
 });
