@@ -1,7 +1,17 @@
 import express from "express";
 import fetch from "node-fetch";
-import cors from "cors"; // Import the CORS package
+import cors from "cors";
 import { parseStringPromise } from "xml2js";
+import fs from "fs";
+import https from "https";
+import zlib from "zlib";
+import path from "path";
+import { fileURLToPath } from "url";
+import schedule from "node-schedule";
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
@@ -135,7 +145,6 @@ app.get("/api/redhat", async (req, res) => {
       cvssScore: vuln.cvss3_score || "N/A",
       advisory: vuln.advisories?.[0] || "No advisory available",
     }));
-    // Filter out entries with missing critical information
 
     res.json(formattedVulnerabilities);
   } catch (error) {
@@ -147,65 +156,146 @@ app.get("/api/redhat", async (req, res) => {
   }
 });
 
-// Add this endpoint to your server.js file
+// NVD data handling
+const DOWNLOAD_DIR = path.join(__dirname, "nvd_data");
+const NVD_FEED_URL =
+  "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2025.json.gz";
+const PROCESSED_JSON_PATH = path.join(
+  __dirname,
+  "public/data/nvd_2025_vulnerabilities.json"
+);
 
-app.get("/api/nvd", async (req, res) => {
-  try {
-    const response = await fetch(
-      `https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=50`
-    );
+function downloadAndProcessNvdData() {
+  console.log(`Starting NVD update: ${new Date()}`);
 
-    if (!response.ok) {
-      return res.status(502).json({
-        error: "Failed to fetch NVD data",
-        status: response.status,
-      });
-    }
+  // Create download directory if it doesn't exist
+  if (!fs.existsSync(DOWNLOAD_DIR)) {
+    fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+  }
 
-    const data = await response.json();
+  const gzFilePath = path.join(DOWNLOAD_DIR, "nvdcve-1.1-2025.json.gz");
+  const file = fs.createWriteStream(gzFilePath);
 
-    const formattedVulnerabilities = data.vulnerabilities.map((item) => {
-      const cve = item.cve;
+  https
+    .get(NVD_FEED_URL, (response) => {
+      response.pipe(file);
 
-      let cvssScore = "N/A";
-      if (cve.metrics?.cvssMetricV31?.[0]) {
-        cvssScore = cve.metrics.cvssMetricV31[0].cvssData.baseScore;
-      } else if (cve.metrics?.cvssMetricV30?.[0]) {
-        cvssScore = cve.metrics.cvssMetricV30[0].cvssData.baseScore;
-      } else if (cve.metrics?.cvssMetricV2?.[0]) {
-        cvssScore = cve.metrics.cvssMetricV2[0].cvssData.baseScore;
-      }
+      file.on("finish", () => {
+        file.close(() => {
+          console.log(`Downloaded NVD data to ${gzFilePath}`);
 
-      const description =
-        cve.descriptions?.[0]?.value || "No description available";
+          // Extract and process the data
+          const gunzip = zlib.createGunzip();
+          const fileContents = fs.createReadStream(gzFilePath).pipe(gunzip);
+          let data = "";
 
-      const tags = [];
-      if (cve.weaknesses) {
-        cve.weaknesses.forEach((weakness) => {
-          weakness.description?.forEach((desc) => {
-            if (desc.value?.startsWith("CWE-")) {
-              tags.push(desc.value);
+          fileContents.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          fileContents.on("end", () => {
+            try {
+              const jsonData = JSON.parse(data);
+              const processedData = [];
+
+              for (const item of jsonData.CVE_Items || []) {
+                const cve = item.cve || {};
+                const impact = item.impact || {};
+
+                // Extract CVSS score
+                let cvssScore = "N/A";
+                if (impact.baseMetricV3) {
+                  cvssScore = impact.baseMetricV3.cvssV3.baseScore;
+                } else if (impact.baseMetricV2) {
+                  cvssScore = impact.baseMetricV2.cvssV2.baseScore;
+                }
+
+                // Get description
+                let description = "No description available";
+                if (cve.description && cve.description.description_data) {
+                  for (const desc of cve.description.description_data) {
+                    if (desc.lang === "en") {
+                      description = desc.value || description;
+                      break;
+                    }
+                  }
+                }
+
+                // Get severity based on CVSS score
+                let severity = "N/A";
+                if (cvssScore !== "N/A") {
+                  const score = parseFloat(cvssScore);
+                  if (score >= 9.0) severity = "Critical";
+                  else if (score >= 7.0) severity = "High";
+                  else if (score >= 4.0) severity = "Medium";
+                  else severity = "Low";
+                }
+
+                // Build final object
+                processedData.push({
+                  id: cve.CVE_data_meta?.ID || "Unknown",
+                  description,
+                  cvssScore: String(cvssScore),
+                  severity,
+                  publishedDate: item.publishedDate,
+                  lastModifiedDate: item.lastModifiedDate,
+                  references: (cve.references?.reference_data || [])
+                    .slice(0, 3)
+                    .map((ref) => ref.url)
+                    .filter(Boolean),
+                });
+              }
+
+              // Save processed data
+              if (!fs.existsSync(path.dirname(PROCESSED_JSON_PATH))) {
+                fs.mkdirSync(path.dirname(PROCESSED_JSON_PATH), {
+                  recursive: true,
+                });
+              }
+
+              fs.writeFileSync(
+                PROCESSED_JSON_PATH,
+                JSON.stringify(processedData, null, 2)
+              );
+
+              console.log(
+                `Processed ${processedData.length} vulnerabilities and saved to ${PROCESSED_JSON_PATH}`
+              );
+            } catch (error) {
+              console.error("Error processing NVD data:", error);
             }
           });
         });
-      }
-
-      const references =
-        cve.references?.map((ref) => ref.url).slice(0, 3) || [];
-
-      return {
-        id: cve.id,
-        description,
-        cvssScore: cvssScore.toString(),
-        publishedDate: cve.published,
-        tags,
-        references,
-      };
+      });
+    })
+    .on("error", (err) => {
+      console.error("Error downloading file:", err);
     });
+}
 
-    res.json(formattedVulnerabilities);
+// Run immediately
+downloadAndProcessNvdData();
+
+// Schedule to run on the 1st of every month at 2 AM
+schedule.scheduleJob("0 2 1 * *", downloadAndProcessNvdData);
+
+console.log("Scheduled monthly NVD data updates");
+
+app.get("/api/nvd", (req, res) => {
+  try {
+    // Check if the file exists first
+    if (!fs.existsSync(PROCESSED_JSON_PATH)) {
+      return res.status(404).json({
+        error: "NVD data not yet available",
+        message:
+          "The data file has not been generated yet. Please try again later.",
+      });
+    }
+
+    const data = fs.readFileSync(PROCESSED_JSON_PATH, "utf8");
+    res.json(JSON.parse(data));
   } catch (error) {
-    console.error("NVD API Error:", error);
+    console.error("Error serving NVD data:", error);
     res.status(500).json({
       error: "Internal server error",
       message: error.message,

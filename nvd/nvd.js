@@ -39,17 +39,37 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(data.error);
       }
 
-      vulnerabilities = data.map((vuln) => ({
-        id: vuln.id,
-        description: vuln.description,
-        cvssScore: vuln.cvssScore,
-        severity: getSeverity(vuln.cvssScore),
-        publishedDate: new Date(vuln.publishedDate),
-        tags: vuln.tags,
-        references: vuln.references,
-      }));
+      // Check if data is in the new structured format or the old array format
+      if (data.vulnerabilities) {
+        // New format - use the pre-calculated stats
+        vulnerabilities = data.vulnerabilities.map((vuln) => ({
+          ...vuln,
+          publishedDate: new Date(vuln.publishedDate),
+          severity: vuln.severity?.toLowerCase() || getSeverity(vuln.cvssScore),
+          tags: vuln.tags || [],
+        }));
 
-      updateStats();
+        // Update stats directly from API response
+        totalCves.textContent = data.totalCves || vulnerabilities.length;
+        criticalCount.textContent = data.critical || 0;
+        highCount.textContent = data.high || 0;
+        mediumCount.textContent = data.medium || 0;
+        lowCount.textContent = data.low || 0;
+      } else {
+        // Old array format - process as before
+        vulnerabilities = data.map((vuln) => ({
+          id: vuln.id,
+          description: vuln.description,
+          cvssScore: vuln.cvssScore,
+          severity: getSeverity(vuln.cvssScore),
+          publishedDate: new Date(vuln.publishedDate),
+          tags: vuln.tags || [],
+          references: vuln.references || [],
+        }));
+
+        updateStats();
+      }
+
       applyFiltersAndSort();
     } catch (error) {
       container.innerHTML = `<div class="vulnerability-card">Error loading data: ${error.message}</div>`;
