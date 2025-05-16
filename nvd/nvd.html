@@ -78,7 +78,28 @@
                 <button id="nvd-export-btn" class="export-button">Export CSV</button>
             </div>
         </div>
-
+        <div class="view-switcher">
+            <div class="view-toggle-label">View:</div>
+            <div class="view-toggle-buttons">
+                <button id="grid-view-btn" class="view-btn active" aria-label="Grid view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    </svg>
+                    <span>Grid</span>
+                </button>
+                <button id="list-view-btn" class="view-btn" aria-label="List view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <span>List</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Stats Summary -->
         <div class="stats-summary">

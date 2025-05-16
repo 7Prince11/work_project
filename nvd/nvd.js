@@ -1,9 +1,15 @@
+// Complete updated NVD JavaScript with view toggle functionality
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("vulnerability-container");
   const severityFilter = document.getElementById("severity-filter");
   const sortDropdown = document.getElementById("sort-dropdown");
   const searchInput = document.getElementById("search-input");
   const timeFilterButtons = document.querySelectorAll(".time-filter-btn");
+
+  // View toggle elements
+  const gridViewBtn = document.getElementById("grid-view-btn");
+  const listViewBtn = document.getElementById("list-view-btn");
 
   // Stats elements
   const totalCves = document.getElementById("total-cves");
@@ -19,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let vulnerabilities = [];
   let filteredVulnerabilities = [];
   let selectedTimeRange = "all"; // Default time range
+  let currentView = "grid"; // Default view mode
 
   // Calculate severity from CVSS score
   const getSeverity = (score) => {
@@ -302,6 +309,26 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   }
 
+  // Handle view toggle
+  function setView(view) {
+    currentView = view;
+
+    // Update UI
+    if (view === "grid") {
+      container.classList.remove("list-view");
+      gridViewBtn.classList.add("active");
+      listViewBtn.classList.remove("active");
+    } else {
+      // "list"
+      container.classList.add("list-view");
+      listViewBtn.classList.add("active");
+      gridViewBtn.classList.remove("active");
+    }
+
+    // Save preference
+    localStorage.setItem("nvd-view-preference", view);
+  }
+
   // Handle time filter button clicks
   timeFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -317,7 +344,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Event listeners
+  // Add event listeners for view toggle buttons
+  gridViewBtn.addEventListener("click", () => setView("grid"));
+  listViewBtn.addEventListener("click", () => setView("list"));
+
+  // Set initial view from saved preference
+  const savedView = localStorage.getItem("nvd-view-preference");
+  if (savedView) {
+    setView(savedView);
+  }
+
+  // Event listeners for filters
   severityFilter.addEventListener("change", applyFiltersAndSort);
   sortDropdown.addEventListener("change", applyFiltersAndSort);
   searchInput.addEventListener("input", applyFiltersAndSort);
