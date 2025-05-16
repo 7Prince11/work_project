@@ -2,26 +2,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const vulnerabilitiesListDiv = document.getElementById(
     "vulnerabilities-list"
   );
-  const filterDropdown = document.getElementById("filter-dropdown");
   const lastFetchDateSpan = document.getElementById("last-fetch-date");
   const searchInput = document.getElementById("search-input");
+  const severityFilter = document.getElementById("severity-filter");
+  const timeFilterButtons = document.querySelectorAll(".time-filter-btn");
 
-  // NEW: references to our view toggle buttons
+  // View toggle elements
   const gridViewBtn = document.getElementById("grid-view-btn");
   const listViewBtn = document.getElementById("list-view-btn");
 
-  const severityCollapsible = document.getElementById("severity-collapsible");
-  const severityToggle = document.getElementById("severity-toggle");
-  const severityArrow = document.getElementById("severity-arrow");
-
-  document
-    .getElementById("redhat-export-btn")
-    ?.addEventListener("click", () => {
-      exportToCSV();
-    });
+  // Stats counters
+  const totalVulns = document.getElementById("total-vulns");
+  const criticalCount = document.getElementById("critical-count");
+  const highCount = document.getElementById("high-count");
+  const mediumCount = document.getElementById("medium-count");
+  const lowCount = document.getElementById("low-count");
 
   let vulnerabilitiesList = [];
   let originalVulnerabilities = [];
+  let filteredVulnerabilities = [];
+  let selectedTimeRange = "all"; // Default time range
+
+  document
+    .getElementById("redhat-export-btn")
+    ?.addEventListener("click", exportToCSV);
 
   // Fetch data from Red Hat API endpoint
   fetch("http://localhost:3000/api/redhat")
@@ -45,20 +49,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const isExploited = vuln.advisory !== "No advisory available";
 
+        // Determine severity category
+        let severityCategory = "neutral"; // default
+        if (baseScore !== "N/A") {
+          const score = parseFloat(baseScore);
+          severityCategory =
+            score >= 9.0
+              ? "severe"
+              : score >= 7.0
+              ? "high"
+              : score >= 4.0
+              ? "medium"
+              : "neutral";
+        }
+
         return {
           title: vuln.title,
           baseScore,
           date: vuln.publicDate,
           severity: vuln.severity,
+          severityCategory: severityCategory,
           id: vuln.id,
           advisory: vuln.advisory,
           affectedPackages: vuln.affectedPackages,
           isExploited,
+          publishedDate: new Date(vuln.publicDate), // Add proper date object for filtering
         };
       });
 
       originalVulnerabilities = [...vulnerabilitiesList];
+      filteredVulnerabilities = [...vulnerabilitiesList];
       renderVulnerabilities(vulnerabilitiesList);
+      updateStats(vulnerabilitiesList);
     })
     .catch((error) => {
       vulnerabilitiesListDiv.innerHTML = `
@@ -69,27 +91,93 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     });
 
+  // Calculate date ranges based on selected time range
+  const getDateRange = (range) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    switch (range) {
+      case "today":
+        return today;
+      case "3days":
+        const threeDaysAgo = new Date(today);
+        threeDaysAgo.setDate(today.getDate() - 3);
+        return threeDaysAgo;
+      case "week":
+        const weekAgo = new Date(today);
+        weekAgo.setDate(today.getDate() - 7);
+        return weekAgo;
+      case "month":
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(today.getMonth() - 1);
+        return monthAgo;
+      case "3months":
+        const threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+        return threeMonthsAgo;
+      case "6months":
+        const sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(today.getMonth() - 6);
+        return sixMonthsAgo;
+      default: // "all"
+        return null; // No date filtering
+    }
+  };
+
+  // Update statistics counters
+  function updateStats(vulnList) {
+    const stats = vulnList.reduce(
+      (acc, vuln) => {
+        acc.total++;
+        const category = vuln.severityCategory;
+        if (category === "severe") acc.severe++;
+        else if (category === "high") acc.high++;
+        else if (category === "medium") acc.medium++;
+        else acc.neutral++;
+        return acc;
+      },
+      { total: 0, severe: 0, high: 0, medium: 0, neutral: 0 }
+    );
+
+    // Animate the counter changes
+    animateNumber(totalVulns, stats.total);
+    animateNumber(criticalCount, stats.severe);
+    animateNumber(highCount, stats.high);
+    animateNumber(mediumCount, stats.medium);
+    animateNumber(lowCount, stats.neutral);
+  }
+
+  // Animate number changes
+  function animateNumber(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    const diff = newValue - currentValue;
+    const steps = 20; // Number of animation steps
+    const stepValue = diff / steps;
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+      currentStep++;
+      const value = Math.round(currentValue + stepValue * currentStep);
+      element.textContent = value;
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        element.textContent = newValue;
+      }
+    }, 20); // ~400ms total animation time
+  }
+
   // Render Vulnerabilities
   function renderVulnerabilities(vulnerabilities) {
     vulnerabilitiesListDiv.innerHTML = "";
+    filteredVulnerabilities = vulnerabilities;
 
     vulnerabilities.forEach((vuln, index) => {
       const card = document.createElement("div");
       card.className = "vulnerability-card";
 
       // Determine severity style
-      let severityClass = "neutral";
-      if (vuln.baseScore !== "N/A") {
-        const score = parseFloat(vuln.baseScore);
-        severityClass =
-          score >= 7
-            ? "severe"
-            : score >= 4
-            ? "high"
-            : score > 0
-            ? "medium"
-            : "neutral";
-      }
+      let severityClass = vuln.severityCategory || "neutral";
 
       // If isExploited, override to "exploited"
       if (vuln.isExploited) {
@@ -161,57 +249,56 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Combine Search & Filter
+  // Apply filters and sorting
   function applyFilters() {
-    let updatedList = [...originalVulnerabilities];
+    let result = [...originalVulnerabilities];
 
-    // Searching
-    const query = searchInput.value.toLowerCase().trim();
-    if (query) {
-      updatedList = updatedList.filter((vuln) => {
+    // Apply time filter
+    const dateThreshold = getDateRange(selectedTimeRange);
+    if (dateThreshold) {
+      result = result.filter((vuln) => {
+        // Handle invalid dates
+        const vulnDate = vuln.publishedDate;
+        return vulnDate && vulnDate >= dateThreshold;
+      });
+    }
+
+    // Apply severity filter
+    const selectedSeverity = severityFilter.value;
+    if (selectedSeverity !== "all") {
+      result = result.filter(
+        (vuln) => vuln.severityCategory === selectedSeverity
+      );
+    }
+
+    // Apply search
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (searchTerm) {
+      result = result.filter((vuln) => {
         return (
-          vuln.title.toLowerCase().includes(query) ||
-          vuln.id.toLowerCase().includes(query) ||
-          vuln.severity.toLowerCase().includes(query) ||
-          vuln.advisory.toLowerCase().includes(query) ||
-          vuln.affectedPackages.toLowerCase().includes(query)
+          vuln.title.toLowerCase().includes(searchTerm) ||
+          vuln.id.toLowerCase().includes(searchTerm) ||
+          vuln.severity.toLowerCase().includes(searchTerm) ||
+          vuln.advisory.toLowerCase().includes(searchTerm) ||
+          vuln.affectedPackages.toLowerCase().includes(searchTerm)
         );
       });
     }
 
-    // Sorting / Exploit filtering
-    const filterValue = filterDropdown.value;
-    switch (filterValue) {
-      case "title":
-        updatedList.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "date":
-        updatedList.sort((a, b) => {
-          const dateA = new Date(a.date).getTime() || 0;
-          const dateB = new Date(b.date).getTime() || 0;
-          return dateB - dateA; // descending
-        });
-        break;
-      case "severity":
-        updatedList.sort((a, b) => {
-          const scoreA = parseFloat(a.baseScore) || 0;
-          const scoreB = parseFloat(b.baseScore) || 0;
-          return scoreB - scoreA; // descending
-        });
-        break;
-      case "exploited":
-        updatedList = updatedList.filter((vuln) => vuln.isExploited);
-        break;
-      default:
-        // none
-        break;
-    }
+    // By default, sort by date (newest first)
+    result.sort((a, b) => {
+      const dateA = a.publishedDate ? a.publishedDate.getTime() : 0;
+      const dateB = b.publishedDate ? b.publishedDate.getTime() : 0;
+      return dateB - dateA;
+    });
 
-    renderVulnerabilities(updatedList);
+    renderVulnerabilities(result);
+    updateStats(result);
   }
+
   function exportToCSV() {
     // Get the current filtered/displayed vulnerabilities
-    const data = vulnerabilitiesList || [];
+    const data = filteredVulnerabilities || [];
 
     if (data.length === 0) {
       return alert("No data available to export!");
@@ -255,28 +342,50 @@ document.addEventListener("DOMContentLoaded", () => {
     a.click();
     URL.revokeObjectURL(url);
   }
-  severityToggle.addEventListener("click", () => {
-    // If already expanded, collapse it
-    if (severityCollapsible.classList.contains("expanded")) {
-      severityCollapsible.classList.remove("expanded");
-      severityArrow.classList.remove("arrow-expanded");
-      severityArrow.classList.add("arrow-collapsed");
-    } else {
-      // If collapsed, expand it
-      severityCollapsible.classList.add("expanded");
-      severityArrow.classList.remove("arrow-collapsed");
-      severityArrow.classList.add("arrow-expanded");
-    }
+
+  // Handle time filter button clicks
+  timeFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Update active button
+      timeFilterButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Update selected time range
+      selectedTimeRange = button.dataset.time;
+
+      // Apply filters with new time range
+      applyFilters();
+    });
   });
+
   // Event Listeners
-  filterDropdown.addEventListener("change", applyFilters);
+  severityFilter.addEventListener("change", applyFilters);
   searchInput.addEventListener("input", applyFilters);
 
-  // NEW: Toggle between Grid and List
+  // Toggle between Grid and List
   gridViewBtn.addEventListener("click", () => {
     vulnerabilitiesListDiv.classList.remove("list-view");
+    gridViewBtn.classList.add("active");
+    listViewBtn.classList.remove("active");
+    localStorage.setItem("redhat-view-preference", "grid");
   });
+
   listViewBtn.addEventListener("click", () => {
     vulnerabilitiesListDiv.classList.add("list-view");
+    listViewBtn.classList.add("active");
+    gridViewBtn.classList.remove("active");
+    localStorage.setItem("redhat-view-preference", "list");
   });
+
+  // Load saved view preference
+  const savedView = localStorage.getItem("redhat-view-preference");
+  if (savedView === "list") {
+    vulnerabilitiesListDiv.classList.add("list-view");
+    listViewBtn.classList.add("active");
+    gridViewBtn.classList.remove("active");
+  } else {
+    vulnerabilitiesListDiv.classList.remove("list-view");
+    gridViewBtn.classList.add("active");
+    listViewBtn.classList.remove("active");
+  }
 });
