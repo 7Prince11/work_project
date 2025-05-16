@@ -483,3 +483,69 @@ body.dark-mode .reference-link:hover {
     padding: 0 1rem 1rem;
   }
 }
+.filter-section {
+  margin: 1rem 2rem;
+  background: var(--light-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.time-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.time-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.time-filter-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--background);
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.time-filter-btn:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+}
+
+.time-filter-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Make the stats summary more dynamic */
+.stats-summary {
+  transition: all 0.3s ease;
+}
+
+.stat-card {
+  transition: all 0.3s ease;
+}
+
+.stat-number {
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .time-buttons {
+    justify-content: center;
+  }
+
+  .filter-section {
+    margin: 1rem;
+    padding: 0.75rem;
+  }
+}

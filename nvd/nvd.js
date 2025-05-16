@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const severityFilter = document.getElementById("severity-filter");
   const sortDropdown = document.getElementById("sort-dropdown");
   const searchInput = document.getElementById("search-input");
+  const timeFilterButtons = document.querySelectorAll(".time-filter-btn");
 
   // Stats elements
   const totalCves = document.getElementById("total-cves");
@@ -10,12 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const highCount = document.getElementById("high-count");
   const mediumCount = document.getElementById("medium-count");
   const lowCount = document.getElementById("low-count");
+
   document
     .getElementById("nvd-export-btn")
     ?.addEventListener("click", exportToCSV);
 
   let vulnerabilities = [];
   let filteredVulnerabilities = [];
+  let selectedTimeRange = "all"; // Default time range
 
   // Calculate severity from CVSS score
   const getSeverity = (score) => {
@@ -25,6 +28,39 @@ document.addEventListener("DOMContentLoaded", () => {
     if (num >= 7.0) return "high";
     if (num >= 4.0) return "medium";
     return "low";
+  };
+
+  // Calculate date ranges based on selected time range
+  const getDateRange = (range) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    switch (range) {
+      case "today":
+        return today;
+      case "3days":
+        const threeDaysAgo = new Date(today);
+        threeDaysAgo.setDate(today.getDate() - 3);
+        return threeDaysAgo;
+      case "week":
+        const weekAgo = new Date(today);
+        weekAgo.setDate(today.getDate() - 7);
+        return weekAgo;
+      case "month":
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(today.getMonth() - 1);
+        return monthAgo;
+      case "3months":
+        const threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+        return threeMonthsAgo;
+      case "6months":
+        const sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(today.getMonth() - 6);
+        return sixMonthsAgo;
+      default: // "all"
+        return null; // No date filtering
+    }
   };
 
   // Fetch vulnerabilities from NVD
@@ -49,12 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
           tags: vuln.tags || [],
         }));
 
-        // Update stats directly from API response
-        totalCves.textContent = data.totalCves || vulnerabilities.length;
-        criticalCount.textContent = data.critical || 0;
-        highCount.textContent = data.high || 0;
-        mediumCount.textContent = data.medium || 0;
-        lowCount.textContent = data.low || 0;
+        // Will be updated dynamically in applyFiltersAndSort
       } else {
         // Old array format - process as before
         vulnerabilities = data.map((vuln) => ({
@@ -66,8 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
           tags: vuln.tags || [],
           references: vuln.references || [],
         }));
-
-        updateStats();
       }
 
       applyFiltersAndSort();
@@ -77,9 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Update statistics
-  // Update statistics
-  const updateStats = () => {
-    const stats = vulnerabilities.reduce(
+  const updateStats = (filteredData) => {
+    const stats = filteredData.reduce(
       (acc, vuln) => {
         acc.total++;
         acc[vuln.severity]++;
@@ -88,16 +116,43 @@ document.addEventListener("DOMContentLoaded", () => {
       { total: 0, critical: 0, high: 0, medium: 0, low: 0 }
     );
 
-    totalCves.textContent = stats.total;
-    criticalCount.textContent = stats.critical;
-    highCount.textContent = stats.high;
-    mediumCount.textContent = stats.medium;
-    document.getElementById("low-count").textContent = stats.low;
+    // Animate the number changes
+    animateNumber(totalCves, stats.total);
+    animateNumber(criticalCount, stats.critical);
+    animateNumber(highCount, stats.high);
+    animateNumber(mediumCount, stats.medium);
+    animateNumber(document.getElementById("low-count"), stats.low);
   };
+
+  // Animate number changes
+  function animateNumber(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    const diff = newValue - currentValue;
+    const steps = 20; // Number of animation steps
+    const stepValue = diff / steps;
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+      currentStep++;
+      const value = Math.round(currentValue + stepValue * currentStep);
+      element.textContent = value;
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        element.textContent = newValue;
+      }
+    }, 20); // ~400ms total animation time
+  }
 
   // Apply filters and sorting
   const applyFiltersAndSort = () => {
     let result = [...vulnerabilities];
+
+    // Apply time filter
+    const dateThreshold = getDateRange(selectedTimeRange);
+    if (dateThreshold) {
+      result = result.filter((vuln) => vuln.publishedDate >= dateThreshold);
+    }
 
     // Apply severity filter
     const selectedSeverity = severityFilter.value;
@@ -112,7 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
         (vuln) =>
           vuln.id.toLowerCase().includes(searchTerm) ||
           vuln.description.toLowerCase().includes(searchTerm) ||
-          vuln.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+          (vuln.tags &&
+            vuln.tags.some((tag) => tag.toLowerCase().includes(searchTerm)))
       );
     }
 
@@ -133,6 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
         result.sort((a, b) => a.id.localeCompare(b.id));
         break;
     }
+
+    // Update the stats based on filtered results
+    updateStats(result);
 
     filteredVulnerabilities = result;
     renderVulnerabilities();
@@ -169,7 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <p class="description">${description}</p>
         
         <div class="meta-tags">
-          ${vuln.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
+          ${(vuln.tags || [])
+            .map((tag) => `<span class="tag">${tag}</span>`)
+            .join("")}
         </div>
         
         <div class="date-info">
@@ -179,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </svg>
           ${vuln.publishedDate.toLocaleDateString()}
           ${
-            vuln.references.length > 0
+            vuln.references && vuln.references.length > 0
               ? `| <a href="${vuln.references[0]}" target="_blank">Reference</a>`
               : ""
           }
@@ -216,14 +277,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Create CSV rows
     const rows = data.map((vuln) => {
-      const severity = getSeverity(vuln.cvssScore);
       return [
         vuln.id,
         vuln.cvssScore,
-        severity,
-        new Date(vuln.publishedDate).toLocaleDateString(),
+        vuln.severity,
+        vuln.publishedDate.toLocaleDateString(),
         `"${vuln.description.replace(/"/g, '""')}"`,
-        vuln.tags.join(", "),
+        (vuln.tags || []).join(", "),
       ]
         .map((val) => `"${String(val).replace(/"/g, '""')}"`)
         .join(",");
@@ -241,6 +301,21 @@ document.addEventListener("DOMContentLoaded", () => {
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  // Handle time filter button clicks
+  timeFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Update active button
+      timeFilterButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Update selected time range
+      selectedTimeRange = button.dataset.time;
+
+      // Apply filters with new time range
+      applyFiltersAndSort();
+    });
+  });
 
   // Event listeners
   severityFilter.addEventListener("change", applyFiltersAndSort);
