@@ -400,6 +400,7 @@ header h1 {
   width: 24px;
   height: 24px;
   margin-bottom: 0.5rem;
+  color: var(--text);
 }
 
 .status-badge {
