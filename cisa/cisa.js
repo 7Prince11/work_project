@@ -1,45 +1,206 @@
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("vulnerability-container");
-  const timeFilter = document.getElementById("time-filter");
-  const sortDropdown = document.getElementById("sort-dropdown");
+  const ransomwareFilter = document.getElementById("ransomware-filter");
+  const searchInput = document.getElementById("search-input");
+  const timeFilterButtons = document.querySelectorAll(".time-filter-btn");
+  const lastFetchDateSpan = document.getElementById("last-fetch-date");
+
+  // View toggle elements
+  const gridViewBtn = document.getElementById("grid-view-btn");
+  const listViewBtn = document.getElementById("list-view-btn");
+
+  // Stats counters
+  const totalVulns = document.getElementById("total-vulns");
+  const ransomwareCount = document.getElementById("ransomware-count");
+  const safeCount = document.getElementById("safe-count");
+  const unknownCount = document.getElementById("unknown-count");
+  const recentCount = document.getElementById("recent-count");
 
   let vulnerabilities = [];
+  let originalVulnerabilities = [];
   let filteredVulnerabilities = [];
+  let selectedTimeRange = "all"; // Default time range
 
+  document
+    .getElementById("cisa-export-btn")
+    ?.addEventListener("click", exportToCSV);
+
+  // Helper function to determine if a date is within the last 30 days
   const isWithinTimeRange = (vulnDate, days) => {
     const now = new Date();
     return now - vulnDate <= days * 86400000;
   };
 
+  // Calculate date ranges based on selected time range
+  const getDateRange = (range) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    switch (range) {
+      case "today":
+        return today;
+      case "3days":
+        const threeDaysAgo = new Date(today);
+        threeDaysAgo.setDate(today.getDate() - 3);
+        return threeDaysAgo;
+      case "week":
+        const weekAgo = new Date(today);
+        weekAgo.setDate(today.getDate() - 7);
+        return weekAgo;
+      case "month":
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(today.getMonth() - 1);
+        return monthAgo;
+      case "3months":
+        const threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+        return threeMonthsAgo;
+      case "6months":
+        const sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(today.getMonth() - 6);
+        return sixMonthsAgo;
+      default: // "all"
+        return null; // No date filtering
+    }
+  };
+
+  // Fetch vulnerabilities from CISA
   const fetchVulnerabilities = () => {
     container.innerHTML = '<div class="loading-animation"></div>';
 
     fetch("http://localhost:3000/api/cisa")
       .then((response) => response.json())
       .then((data) => {
+        // Set "Last Updated" date/time
+        lastFetchDateSpan.textContent = new Date().toLocaleString();
+
         vulnerabilities = data.map((vuln) => ({
           ...vuln,
           dateAdded: new Date(vuln.dateAdded),
+          ransomwareCategory: categorizeRansomware(
+            vuln.knownRansomwareCampaignUse
+          ),
         }));
-        applyFilters("week");
+
+        originalVulnerabilities = [...vulnerabilities];
+        filteredVulnerabilities = [...vulnerabilities];
+        applyFilters();
       })
       .catch((error) => {
         container.innerHTML = `<div class="vulnerability-card">Error loading data: ${error.message}</div>`;
       });
   };
 
-  const applyFilters = (timeRange) => {
-    const daysMapping = { week: 7, month: 30, "three-months": 90 };
-    filteredVulnerabilities = vulnerabilities.filter((vuln) =>
-      daysMapping[timeRange]
-        ? isWithinTimeRange(vuln.dateAdded, daysMapping[timeRange])
-        : true
-    );
-    renderVulnerabilities(filteredVulnerabilities);
+  // Categorize ransomware status
+  const categorizeRansomware = (status) => {
+    if (typeof status === "string") {
+      const lower = status.toLowerCase();
+      if (lower === "yes" || lower === "true") return "ransomware";
+      if (lower === "no" || lower === "false") return "safe";
+    }
+    return "unknown";
   };
 
+  // Update statistics counters
+  function updateStats(vulnList) {
+    const now = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+
+    const stats = vulnList.reduce(
+      (acc, vuln) => {
+        acc.total++;
+
+        // Count by ransomware status
+        if (vuln.ransomwareCategory === "ransomware") acc.ransomware++;
+        else if (vuln.ransomwareCategory === "safe") acc.safe++;
+        else acc.unknown++;
+
+        // Count recent additions (last 30 days)
+        if (vuln.dateAdded >= thirtyDaysAgo) acc.recent++;
+
+        return acc;
+      },
+      { total: 0, ransomware: 0, safe: 0, unknown: 0, recent: 0 }
+    );
+
+    // Animate the counter changes
+    animateNumber(totalVulns, stats.total);
+    animateNumber(ransomwareCount, stats.ransomware);
+    animateNumber(safeCount, stats.safe);
+    animateNumber(unknownCount, stats.unknown);
+    animateNumber(recentCount, stats.recent);
+  }
+
+  // Animate number changes
+  function animateNumber(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    const diff = newValue - currentValue;
+    const steps = 20; // Number of animation steps
+    const stepValue = diff / steps;
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+      currentStep++;
+      const value = Math.round(currentValue + stepValue * currentStep);
+      element.textContent = value;
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        element.textContent = newValue;
+      }
+    }, 20); // ~400ms total animation time
+  }
+
+  // Apply filters and sorting
+  const applyFilters = () => {
+    let result = [...originalVulnerabilities];
+
+    // Apply time filter
+    const dateThreshold = getDateRange(selectedTimeRange);
+    if (dateThreshold) {
+      result = result.filter((vuln) => vuln.dateAdded >= dateThreshold);
+    }
+
+    // Apply ransomware filter
+    const selectedRansomware = ransomwareFilter.value;
+    if (selectedRansomware !== "all") {
+      if (selectedRansomware === "yes") {
+        result = result.filter(
+          (vuln) => vuln.ransomwareCategory === "ransomware"
+        );
+      } else if (selectedRansomware === "no") {
+        result = result.filter((vuln) => vuln.ransomwareCategory === "safe");
+      } else if (selectedRansomware === "unknown") {
+        result = result.filter((vuln) => vuln.ransomwareCategory === "unknown");
+      }
+    }
+
+    // Apply search
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (searchTerm) {
+      result = result.filter((vuln) => {
+        return (
+          (vuln.vulnerabilityName || "").toLowerCase().includes(searchTerm) ||
+          (vuln.cveID || "").toLowerCase().includes(searchTerm) ||
+          (vuln.vendorProject || "").toLowerCase().includes(searchTerm) ||
+          (vuln.product || "").toLowerCase().includes(searchTerm) ||
+          (vuln.shortDescription || "").toLowerCase().includes(searchTerm)
+        );
+      });
+    }
+
+    // Sort by date (newest first)
+    result.sort((a, b) => b.dateAdded - a.dateAdded);
+
+    renderVulnerabilities(result);
+    updateStats(result);
+  };
+
+  // Render vulnerability cards with improved design
   const renderVulnerabilities = (vulnList) => {
     container.innerHTML = "";
+    filteredVulnerabilities = vulnList;
 
     if (vulnList.length === 0) {
       container.innerHTML =
@@ -49,40 +210,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
     vulnList.forEach((vuln, index) => {
       const card = document.createElement("div");
-      card.className = "vulnerability-card";
+      card.className = `vulnerability-card ${vuln.ransomwareCategory}`;
+
+      // Truncate title if too long
+      let title = vuln.vulnerabilityName || vuln.cveID;
+      if (title.length > 80) {
+        title = title.substring(0, 80) + "...";
+      }
+
+      // Status badge
+      let badgeClass = vuln.ransomwareCategory;
+      let badgeText = "Unknown Status";
+      if (vuln.ransomwareCategory === "ransomware") {
+        badgeText = "⚠️ Known Ransomware";
+      } else if (vuln.ransomwareCategory === "safe") {
+        badgeText = "🛡️ No Ransomware";
+      }
+
+      // Truncate description if available
+      let description = vuln.shortDescription || "No description available.";
+      if (description.length > 150) {
+        description = description.substring(0, 150) + "...";
+      }
+
       card.innerHTML = `
-        <h3>${vuln.vulnerabilityName || vuln.cveID}</h3>
-        <div class="meta-grid">
-          <div class="meta-item">
+        <h3>${title}</h3>
+        
+        <div class="info-grid">
+          <div class="info-box">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
             </svg>
-            <div>${vuln.vendorProject}</div>
+            <div class="info-label">Vendor</div>
+            <div class="info-value">${vuln.vendorProject || "Unknown"}</div>
           </div>
-          <div class="meta-item">
+          
+          <div class="info-box">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
-            <div>${vuln.product}</div>
+            <div class="info-label">Product</div>
+            <div class="info-value">${vuln.product || "Unknown"}</div>
           </div>
         </div>
-        <div class="status-badge ${
-          vuln.knownRansomwareCampaignUse ? "exploited" : "unknown"
-        }">
-          ${vuln.knownRansomwareCampaignUse || "Unknown"}
-        </div>
+        
+        <div class="status-badge ${badgeClass}">${badgeText}</div>
+        
         <div class="date-info">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
             <path d="M16 2v4M8 2v4M3 14h18"/>
           </svg>
-          ${vuln.dateAdded.toLocaleDateString()}
+          Added: ${vuln.dateAdded.toLocaleDateString()}
         </div>
-        ${
-          vuln.shortDescription
-            ? `<p class="description">${vuln.shortDescription}</p>`
-            : ""
-        }
+        
+        ${description ? `<p class="description">${description}</p>` : ""}
       `;
 
       container.appendChild(card);
@@ -91,44 +273,11 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         card.style.opacity = "1";
         card.style.transform = "translateY(0)";
-      }, index * 150);
+      }, index * 100);
     });
   };
 
-  const sortVulnerabilities = (criteria) => {
-    const sorted = [...filteredVulnerabilities];
-    switch (criteria) {
-      case "name":
-        sorted.sort((a, b) =>
-          (a.vulnerabilityName || "").localeCompare(b.vulnerabilityName || "")
-        );
-        break;
-      case "date":
-        sorted.sort((a, b) => b.dateAdded - a.dateAdded);
-        break;
-      case "vendor":
-        sorted.sort((a, b) =>
-          (a.vendorProject || "").localeCompare(b.vendorProject || "")
-        );
-        break;
-    }
-    renderVulnerabilities(sorted);
-  };
-
-  // Event Listeners
-  timeFilter.addEventListener("change", (e) => applyFilters(e.target.value));
-  sortDropdown.addEventListener("change", (e) =>
-    sortVulnerabilities(e.target.value)
-  );
-
-  // Add this near your other event listeners
-  document.getElementById("cisa-export-btn")?.addEventListener("click", () => {
-    exportCisaToCSV();
-  });
-
-  // Add this function to your JavaScript
-  function exportCisaToCSV() {
-    // Get the current filtered/displayed vulnerabilities
+  function exportToCSV() {
     const data = filteredVulnerabilities || [];
 
     if (data.length === 0) {
@@ -140,6 +289,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "CVE ID",
       "Vulnerability Name",
       "Date Added",
+      "Vendor/Project",
+      "Product",
+      "Known Ransomware Use",
       "Required Action",
     ];
 
@@ -148,7 +300,10 @@ document.addEventListener("DOMContentLoaded", () => {
       [
         v.cveID || "",
         v.vulnerabilityName || "",
-        v.dateAdded ? new Date(v.dateAdded).toLocaleDateString() : "",
+        v.dateAdded ? v.dateAdded.toLocaleDateString() : "",
+        v.vendorProject || "",
+        v.product || "",
+        v.knownRansomwareCampaignUse || "",
         v.requiredAction || "",
       ]
         .map((val) => `"${String(val).replace(/"/g, '""')}"`)
@@ -166,6 +321,52 @@ document.addEventListener("DOMContentLoaded", () => {
     a.download = "cisa_vulnerabilities.csv";
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // Handle time filter button clicks
+  timeFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Update active button
+      timeFilterButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Update selected time range
+      selectedTimeRange = button.dataset.time;
+
+      // Apply filters with new time range
+      applyFilters();
+    });
+  });
+
+  // Event Listeners
+  ransomwareFilter.addEventListener("change", applyFilters);
+  searchInput.addEventListener("input", applyFilters);
+
+  // Toggle between Grid and List
+  gridViewBtn.addEventListener("click", () => {
+    container.classList.remove("list-view");
+    gridViewBtn.classList.add("active");
+    listViewBtn.classList.remove("active");
+    localStorage.setItem("cisa-view-preference", "grid");
+  });
+
+  listViewBtn.addEventListener("click", () => {
+    container.classList.add("list-view");
+    listViewBtn.classList.add("active");
+    gridViewBtn.classList.remove("active");
+    localStorage.setItem("cisa-view-preference", "list");
+  });
+
+  // Load saved view preference
+  const savedView = localStorage.getItem("cisa-view-preference");
+  if (savedView === "list") {
+    container.classList.add("list-view");
+    listViewBtn.classList.add("active");
+    gridViewBtn.classList.remove("active");
+  } else {
+    container.classList.remove("list-view");
+    gridViewBtn.classList.add("active");
+    listViewBtn.classList.remove("active");
   }
 
   // Initial Load

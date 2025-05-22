@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="../style.css" />
     <script src="../theme.js"></script>
 
-
     <link rel="icon" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
   <circle cx='50' cy='50' r='50' fill='%23800000'/>
@@ -30,28 +29,98 @@
     </header>
 
     <main class="main-container">
-        <!-- Filter and Sort Container -->
+        <!-- Header section with title and fetch info -->
         <div class="control-panel">
-            <div class="filter-group">
-                <label for="time-filter" class="control-label">Time Range:</label>
-                <select id="time-filter" class="control-dropdown">
-                    <option value="week">Last Week</option>
-                    <option value="month">Last Month</option>
-                    <option value="three-months">Last 3 Months</option>
-                </select>
+            <div class="left-controls">
+                <div id="header-information" class="header-information">
+                    <h3 id="dynamic-title">CISA Known Exploited Vulnerabilities</h3>
+                    <p><strong>Last Updated:</strong> <span id="last-fetch-date">Loading...</span></p>
+                </div>
             </div>
 
+            <!-- Updated Controls with Ransomware Filter and Export -->
             <div class="right-controls">
                 <div class="filter-group">
-                    <label for="sort-dropdown" class="control-label">Sort By:</label>
-                    <select id="sort-dropdown" class="control-dropdown">
-                        <option value="default">Default</option>
-                        <option value="name">Name</option>
-                        <option value="date">Date</option>
-                        <option value="vendor">Vendor</option>
+                    <label for="ransomware-filter" class="control-label">Ransomware:</label>
+                    <select id="ransomware-filter" class="control-dropdown">
+                        <option value="all">All Types</option>
+                        <option value="yes">Known Ransomware</option>
+                        <option value="no">No Ransomware</option>
+                        <option value="unknown">Unknown</option>
                     </select>
                 </div>
+
+                <div class="filter-group">
+                    <label for="search-input" class="control-label">Search:</label>
+                    <input type="text" id="search-input" class="control-dropdown"
+                        placeholder="Search vulnerabilities..." />
+                </div>
+
                 <button id="cisa-export-btn" class="export-button">Export CSV</button>
+            </div>
+        </div>
+
+        <!-- New Time Filter Section -->
+        <div class="filter-section">
+            <div class="time-filter-group">
+                <label class="control-label">Time Range:</label>
+                <div class="time-buttons">
+                    <button class="time-filter-btn active" data-time="all">All Time</button>
+                    <button class="time-filter-btn" data-time="today">Today</button>
+                    <button class="time-filter-btn" data-time="3days">Last 3 Days</button>
+                    <button class="time-filter-btn" data-time="week">Last Week</button>
+                    <button class="time-filter-btn" data-time="month">Last Month</button>
+                    <button class="time-filter-btn" data-time="3months">Last 3 Months</button>
+                    <button class="time-filter-btn" data-time="6months">Last 6 Months</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card total">
+                <div class="stat-number" id="total-vulns">0</div>
+                <div class="stat-label">Total Vulnerabilities</div>
+            </div>
+            <div class="stat-card ransomware">
+                <div class="stat-number" id="ransomware-count">0</div>
+                <div class="stat-label">Known Ransomware</div>
+            </div>
+            <div class="stat-card safe">
+                <div class="stat-number" id="safe-count">0</div>
+                <div class="stat-label">No Ransomware</div>
+            </div>
+            <div class="stat-card unknown">
+                <div class="stat-number" id="unknown-count">0</div>
+                <div class="stat-label">Unknown Status</div>
+            </div>
+            <div class="stat-card recent">
+                <div class="stat-number" id="recent-count">0</div>
+                <div class="stat-label">Added This Month</div>
+            </div>
+        </div>
+
+        <!-- View Toggle Buttons -->
+        <div class="view-switcher">
+            <div class="view-toggle-label">View:</div>
+            <div class="view-toggle-buttons">
+                <button id="grid-view-btn" class="view-btn active" aria-label="Grid view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    </svg>
+                    <span>Grid</span>
+                </button>
+                <button id="list-view-btn" class="view-btn" aria-label="List view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <span>List</span>
+                </button>
             </div>
         </div>
 

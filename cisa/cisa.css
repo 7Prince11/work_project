@@ -41,21 +41,6 @@ body {
   left: 1.5rem;
   z-index: 100;
 }
-#time-filter {
-  background-color: var(--header-height);
-  color: var(--text);
-}
-#sort-dropdown {
-  background-color: var(--header-height);
-  color: var(--text);
-}
-#time-filter option,
-#sort-dropdown option {
-  background-color: var(--light-bg); /* light background for list */
-  color: var(--text); /* dark text in the open list */
-}
-
-/* If you want the closed <select> text to turn black when you open it: */
 
 .back-button {
   position: relative;
@@ -110,32 +95,252 @@ body {
   right: 1.2rem;
 }
 
-/* Keep the overall control panel layout the same but with improved spacing */
+/* Updated Control Panel Layout */
 .control-panel {
   display: flex;
-  justify-content: space-between; /* This keeps Time Range left and the group right */
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem 2rem; /* slightly reduced vertical padding */
+  padding: 1.5rem 2rem;
   background: var(--light-bg);
   margin: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.left-controls {
+  flex-shrink: 0;
+}
+
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.control-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
 .control-dropdown {
-  width: 100%;
+  width: 150px;
   padding: 0.8rem 1.2rem;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
-  background: white no-repeat right 0.75rem center/10px 10px;
+  background: var(--light-bg);
+  color: var(--text);
   font-size: 0.95rem;
   transition: all 0.25s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 10px 10px;
 }
 
-.control-dropdown:hover {
-  border-color: #800000;
+.control-dropdown:hover,
+.control-dropdown:focus {
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+  outline: none;
+}
+
+.control-dropdown option {
+  background-color: var(--light-bg);
+  color: var(--text);
+  padding: 8px;
+}
+
+#search-input {
+  width: 200px;
+  appearance: none;
+  background-image: none;
+}
+
+.export-button {
+  width: auto;
+  min-width: 100px;
+  max-width: 120px;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.95rem;
+  margin-left: 0.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.export-button:hover {
+  background: #a00000;
+}
+
+/* Time Filter Section */
+.filter-section {
+  margin: 1rem 2rem;
+  background: var(--light-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.time-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.time-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.time-filter-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--background);
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.time-filter-btn:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+}
+
+.time-filter-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Stats Summary */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--light-bg);
+  padding: 1rem 0.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.stat-card.total {
+  background: #4a90e2;
+  color: white;
+}
+
+.stat-card.ransomware {
+  background: #dc3545;
+  color: white;
+}
+
+.stat-card.safe {
+  background: #28a745;
+  color: white;
+}
+
+.stat-card.unknown {
+  background: #6c757d;
+  color: white;
+}
+
+.stat-card.recent {
+  background: #17a2b8;
+  color: white;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: inherit;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+/* View Switcher */
+.view-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 1rem 2rem;
+  gap: 0.75rem;
+}
+
+.view-toggle-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.view-toggle-buttons {
+  display: flex;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--background);
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.view-btn:first-child {
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.view-btn:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.view-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.view-btn svg {
+  stroke-width: 2;
 }
 
 /* Vulnerability Grid */
@@ -146,6 +351,7 @@ body {
   padding: 0 2rem 2rem;
 }
 
+/* Improved Card Design */
 .vulnerability-card {
   background: var(--light-bg);
   border-radius: 12px;
@@ -154,6 +360,10 @@ body {
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
 }
 
 .vulnerability-card:hover {
@@ -161,47 +371,93 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Top colored line indicator based on ransomware status */
+.vulnerability-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+}
+
+.vulnerability-card.ransomware::before {
+  background: #dc3545;
+}
+
+.vulnerability-card.safe::before {
+  background: #28a745;
+}
+
+.vulnerability-card.unknown::before {
+  background: #6c757d;
+}
+
 .vulnerability-card h3 {
-  margin: 0 0 1rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
   color: var(--text);
   line-height: 1.4;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.meta-item {
+.info-grid {
   display: flex;
-  align-items: center;
-  padding: 0.5rem;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-box {
+  flex: 1;
   background: var(--background);
-  border-radius: 6px;
+  padding: 0.8rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
 }
 
 .meta-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 0.3rem;
 }
 
 .status-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
+  width: fit-content;
 }
 
-.status-badge.exploited {
+.status-badge.ransomware {
   background: #fee2e2;
   color: #dc2626;
+}
+
+.status-badge.safe {
+  background: #dcfce7;
+  color: #16a34a;
 }
 
 .status-badge.unknown {
@@ -210,12 +466,104 @@ body {
 }
 
 .date-info {
-  margin-top: 1rem;
   font-size: 0.85rem;
   color: #718096;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.date-info svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+/* List view styles */
+.vulnerability-grid.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vulnerability-grid.list-view .vulnerability-card {
+  display: grid;
+  grid-template-columns: 2fr 5fr;
+  grid-template-areas:
+    "title title"
+    "info-grid description"
+    "status description"
+    "date description";
+  gap: 1rem;
+  align-items: start;
+}
+
+.vulnerability-grid.list-view .vulnerability-card h3 {
+  grid-area: title;
+}
+
+.vulnerability-grid.list-view .info-grid {
+  grid-area: info-grid;
+  flex-direction: column;
+}
+
+.vulnerability-grid.list-view .status-badge {
+  grid-area: status;
+}
+
+.vulnerability-grid.list-view .date-info {
+  grid-area: date;
+  margin-top: 0;
+}
+
+.vulnerability-grid.list-view .description {
+  grid-area: description;
+  margin-top: 0;
+}
+
+/* Loading Animation */
+.loading-animation {
+  animation: pulse 1.5s infinite;
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-animation::after {
+  content: "";
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--background);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Animations */
@@ -230,21 +578,21 @@ body {
   }
 }
 
-.loading-animation {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 /* Responsive Design */
+@media (max-width: 992px) {
+  .control-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .right-controls {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 768px) {
   .control-panel {
     margin: 1rem;
@@ -252,32 +600,36 @@ body {
   }
 
   .vulnerability-grid {
+    grid-template-columns: 1fr;
     padding: 0 1rem 1rem;
   }
-}
-/* This should already be in your CSS, but ensure it's applied to your CISA button */
-.export-button {
-  width: auto;
-  min-width: 100px;
-  max-width: 120px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  margin-left: 0.5rem; /* reduced from 1rem */
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-.export-button:hover {
-  background: #a00000;
-}
 
-/* Add this to cisa.css */
-.right-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  .vulnerability-grid.list-view .vulnerability-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "info-grid"
+      "status"
+      "date"
+      "description";
+  }
+
+  .time-buttons {
+    justify-content: center;
+  }
+
+  .filter-section {
+    margin: 1rem;
+    padding: 0.75rem;
+  }
+
+  .view-switcher {
+    margin: 1rem;
+    justify-content: center;
+  }
+
+  .stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 1rem;
+  }
 }

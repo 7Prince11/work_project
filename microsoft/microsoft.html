@@ -36,31 +36,109 @@
     </header>
 
     <main class="news-container">
+        <!-- Header section with title and fetch info -->
         <div class="header-filter-container">
             <div id="header-information" class="header-information">
                 <h3 id="dynamic-title">Loading...</h3>
-                <p>
-                    <strong>Initial Release Date:</strong>
-                    <span id="release-date">Loading…</span>
-                </p>
+                <p><strong>Initial Release Date:</strong> <span id="release-date">Loading…</span></p>
             </div>
 
-            <div class="filter-container">
-                <label for="filter-dropdown" class="filter-label">Filter By:</label>
-                <select id="filter-dropdown" class="filter-dropdown">
-                    <option value="default">Default</option>
-                    <option value="name">Name</option>
-                    <option value="date">Date</option>
-                    <option value="exploitability">Exploitability</option>
-                </select>
-            </div>
+            <!-- Updated Controls with Severity Filter and Export -->
+            <div class="all-controls">
+                <div class="filter-group">
+                    <label for="severity-filter" class="filter-label">Filter By:</label>
+                    <select id="severity-filter" class="control-dropdown">
+                        <option value="all">All Vulnerabilities</option>
+                        <option value="severe">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="neutral">Low</option>
+                        <option value="exploited">Exploited</option>
+                    </select>
+                </div>
 
-            <!-- ← new export button -->
-            <button id="export-btn" class="export-button">Export CSV</button>
+                <div class="search-control">
+                    <label for="search-input" class="filter-label">Search:</label>
+                    <input type="text" id="search-input" class="filter-dropdown"
+                        placeholder="Search vulnerabilities..." />
+                </div>
+
+                <button id="export-btn" class="export-button">Export CSV</button>
+            </div>
+        </div>
+
+        <!-- New Time Filter Section -->
+        <div class="filter-section">
+            <div class="time-filter-group">
+                <label class="control-label">Time Range:</label>
+                <div class="time-buttons">
+                    <button class="time-filter-btn active" data-time="all">All Time</button>
+                    <button class="time-filter-btn" data-time="today">Today</button>
+                    <button class="time-filter-btn" data-time="3days">Last 3 Days</button>
+                    <button class="time-filter-btn" data-time="week">Last Week</button>
+                    <button class="time-filter-btn" data-time="month">Last Month</button>
+                    <button class="time-filter-btn" data-time="3months">Last 3 Months</button>
+                    <button class="time-filter-btn" data-time="6months">Last 6 Months</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-summary">
+            <div class="stat-card total">
+                <div class="stat-number" id="total-vulns">0</div>
+                <div class="stat-label">Total Vulnerabilities</div>
+            </div>
+            <div class="stat-card severe">
+                <div class="stat-number" id="critical-count">0</div>
+                <div class="stat-label">Critical</div>
+            </div>
+            <div class="stat-card high">
+                <div class="stat-number" id="high-count">0</div>
+                <div class="stat-label">High</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="stat-number" id="medium-count">0</div>
+                <div class="stat-label">Medium</div>
+            </div>
+            <div class="stat-card neutral">
+                <div class="stat-number" id="low-count">0</div>
+                <div class="stat-label">Low</div>
+            </div>
+            <div class="stat-card exploited">
+                <div class="stat-number" id="exploited-count">0</div>
+                <div class="stat-label">Exploited</div>
+            </div>
+        </div>
+
+        <!-- View Toggle Buttons -->
+        <div class="view-switcher">
+            <div class="view-toggle-label">View:</div>
+            <div class="view-toggle-buttons">
+                <button id="grid-view-btn" class="view-btn active" aria-label="Grid view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    </svg>
+                    <span>Grid</span>
+                </button>
+                <button id="list-view-btn" class="view-btn" aria-label="List view">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <span>List</span>
+                </button>
+            </div>
         </div>
 
         <!-- Explanation Section -->
-        <div id="color-explanation" class="explanation">
+
+
+        <!-- <div id="color-explanation" class="explanation">
             <h4>Severity Rating System</h4>
             <div class="explanation-grid">
                 <div class="severity-card green">
@@ -92,11 +170,23 @@
                         <div class="severity-dot"></div>
                         <div>
                             <h5>High Risk</h5>
-                            <div class="score-range">CVSS: 7.0 – 10.0</div>
+                            <div class="score-range">CVSS: 7.0 – 8.9</div>
                         </div>
                     </div>
                     <p class="score-description">
-                        Critical vulnerabilities needing immediate action
+                        Significant vulnerabilities needing prompt action
+                    </p>
+                </div>
+                <div class="severity-card critical">
+                    <div class="severity-header">
+                        <div class="severity-dot"></div>
+                        <div>
+                            <h5>Critical Risk</h5>
+                            <div class="score-range">CVSS: 9.0 – 10.0</div>
+                        </div>
+                    </div>
+                    <p class="score-description">
+                        Critical vulnerabilities requiring immediate action
                     </p>
                 </div>
                 <div class="severity-card gray">
@@ -120,7 +210,7 @@
                     <strong>Temporal Score:</strong> Adjusted for current exploit conditions
                 </p>
             </div>
-        </div>
+        </div> -->
 
         <!-- Vulnerability List -->
         <div id="vulnerabilities-list" class="vulnerabilities-list"></div>
