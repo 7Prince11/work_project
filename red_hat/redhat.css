@@ -34,436 +34,6 @@ header h1 {
   letter-spacing: -0.5px;
 }
 
-/* Filter Section */
-.header-filter-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  margin: 2rem;
-  background: var(--light-bg);
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.filter-container {
-  position: relative;
-}
-
-.filter-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-right: 1rem;
-}
-
-.filter-dropdown {
-  padding: 0.7rem 1.2rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 6px;
-  appearance: none;
-  transition: all 0.25s ease;
-}
-
-.filter-dropdown:hover {
-  border-color: #800000;
-  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
-}
-
-/* VIEW SWITCHER */
-.view-switcher {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin: 1rem 2rem;
-  gap: 0.75rem;
-}
-
-.view-toggle-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.view-toggle-buttons {
-  display: flex;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.view-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--background);
-  border: 1px solid #e2e8f0;
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-}
-
-.view-btn:first-child {
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-}
-
-.view-btn:last-child {
-  border-radius: 0 6px 6px 0;
-}
-
-.view-btn.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-}
-
-.view-btn svg {
-  stroke-width: 2;
-}
-
-#severity-toggle {
-  background-color: var(--light-bg);
-}
-
-#severity-content {
-  background-color: var(--light-bg);
-}
-
-.view-btn:hover {
-  background-color: #600000;
-}
-
-/* Vulnerabilities Grid Layout (default) */
-.vulnerabilities-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-}
-
-/* LIST LAYOUT: When .list-view is applied, items are stacked */
-.vulnerabilities-list.list-view {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Make each vulnerability-card full width in list mode */
-.vulnerabilities-list.list-view .vulnerability-card {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  grid-template-areas:
-    "stats-grid content"
-    "date-info content"
-    "status-badge content";
-  gap: 1rem;
-  width: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.vulnerabilities-list.list-view .vulnerability-card h4 {
-  grid-area: content;
-  margin-top: 0;
-}
-
-.vulnerabilities-list.list-view .stats-grid {
-  grid-area: stats-grid;
-  margin-bottom: 0.5rem;
-}
-
-.vulnerabilities-list.list-view .date-info {
-  grid-area: date-info;
-  margin-top: 0.5rem;
-}
-
-.vulnerabilities-list.list-view .status-badge {
-  grid-area: status-badge;
-}
-
-.vulnerabilities-list.list-view .vulnerability-card p {
-  grid-area: content;
-  margin-top: 0.5rem;
-}
-
-/* Card Styles */
-.vulnerability-card {
-  position: relative;
-  background: var(--light-bg) !important;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.vulnerability-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: 12px 12px 0 0;
-}
-
-.vulnerability-card.severe::before {
-  background: #8b0000; /* Dark red */
-}
-.vulnerability-card.high::before {
-  background: #dc3545; /* Red */
-}
-.vulnerability-card.medium::before {
-  background: #ffc107;
-}
-.vulnerability-card.neutral::before {
-  background: #6c757d;
-}
-.vulnerability-card.exploited::before {
-  background: #dc2626;
-}
-
-.vulnerability-card h4 {
-  margin: 0 0 1.2rem;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.4;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  padding: 0.8rem;
-  background: var(--background);
-  border-radius: 8px;
-}
-
-.stat-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 0.8rem;
-  flex-shrink: 0;
-}
-
-.stat-label {
-  font-size: 0.78rem;
-  color: #718096;
-  margin-bottom: 0.2rem;
-}
-
-.stat-value {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-/* Status Badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.status-badge.exploited {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.status-badge.safe {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-/* Date Info */
-.date-info {
-  margin-top: 1.2rem;
-  font-size: 0.85rem;
-  color: #718096;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.date-info svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-p {
-  color: var(--text);
-}
-
-#search-input,
-#filter-dropdown {
-  background-color: var(--header-height);
-  color: var(--text);
-}
-#filter-dropdown option {
-  background-color: var(--light-bg); /* light background for list */
-  color: var(--text); /* dark text in the open list */
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Explanation Section */
-.explanation {
-  margin: 2rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.explanation h4 {
-  margin: 0 0 1.5rem;
-  font-size: 1.25rem;
-  color: #2d3748;
-  font-weight: 600;
-}
-
-.explanation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.severity-card {
-  padding: 1.2rem;
-  border-radius: 10px;
-  background: var(--background);
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.severity-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-.severity-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-}
-
-.severity-card.green::before {
-  background: #f9a825;
-}
-.severity-card.yellow::before {
-  background: #dc3545; /* Red */
-}
-.severity-card.red::before {
-  background: #d32f2f;
-}
-.severity-card.gray::before {
-  background: #90a4ae;
-}
-
-.severity-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.8rem;
-}
-
-.severity-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  margin-right: 0.8rem;
-  flex-shrink: 0;
-}
-
-.severity-card.green .severity-dot {
-  background: #388e3c;
-}
-.severity-card.yellow .severity-dot {
-  background: #f9a825;
-}
-.severity-card.red .severity-dot {
-  background: #8b0000; /* Dark red */
-}
-.severity-card.gray .severity-dot {
-  background: #90a4ae;
-}
-
-/* Additional Explanation/Score styles */
-.score-range {
-  font-size: 0.85rem;
-  color: #4a5568;
-}
-
-.score-description {
-  font-size: 0.9rem;
-  color: var(--text);
-  line-height: 1.5;
-}
-
-.score-type {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.score-type h5 {
-  margin: 0 0 0.8rem;
-  font-size: 1rem;
-  color: var(--text);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .header-filter-container {
-    flex-direction: column;
-    gap: 1rem;
-    margin: 1rem;
-    padding: 1rem;
-  }
-
-  .vulnerabilities-list {
-    grid-template-columns: 1fr;
-    padding: 1rem;
-  }
-
-  .vulnerabilities-list.list-view .vulnerability-card {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "stats-grid"
-      "content"
-      "date-info"
-      "status-badge";
-  }
-}
-
 /* Back Button */
 .back-button-container {
   position: absolute;
@@ -524,64 +94,8 @@ p {
   opacity: 1;
   right: 1.2rem;
 }
-/* Collapsible Container */
-/* Collapsible container (same as before) */
-.collapsible {
-  margin: 2rem;
-  padding: 0;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
 
-/* Collapsible Header */
-.collapsible-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
-  user-select: none; /* prevent text selection on click */
-}
-
-/* The Title */
-.collapsible-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-/* The Arrow */
-.arrow {
-  font-size: 1.2rem; /* slightly larger arrow text */
-  color: #2d3748; /* arrow color */
-  transition: transform 0.3s ease;
-  display: inline-block;
-  margin-left: 0.5rem;
-}
-
-/* Collapsible Content hidden by default */
-.collapsible-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-  padding: 0 2rem;
-}
-
-/* If .expanded is on the container, show the content */
-.collapsible.expanded .collapsible-content {
-  padding-bottom: 1.5rem;
-  max-height: 1000px; /* or some large value */
-}
-
-/* Additional styling for the arrow in expanded state */
-.arrow-expanded {
-  /* We'll just rotate the arrow or swap it for an up arrow via JS */
-  transform: rotate(0deg);
-}
-/* Add or update in redhat.css */
+/* Control Panel */
 .header-filter-container {
   display: flex;
   justify-content: space-between;
@@ -612,9 +126,72 @@ p {
   white-space: nowrap;
 }
 
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.control-dropdown {
+  width: 150px;
+  padding: 0.7rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: var(--light-bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  appearance: none;
+  transition: all 0.25s ease;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 10px 10px;
+}
+
+.control-dropdown:hover,
+.control-dropdown:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+  outline: none;
+}
+
+.control-dropdown option {
+  background-color: var(--light-bg);
+  color: var(--text);
+  padding: 8px;
+}
+
+#search-input {
+  width: 200px;
+  appearance: none;
+  background-image: none;
+  padding: 0.7rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  background-color: var(--light-bg);
+  color: var(--text);
+}
+
+#search-input:hover,
+#search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+  outline: none;
+}
+
 .export-button {
   margin-left: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   background: var(--primary);
   color: white;
   border: none;
@@ -629,30 +206,47 @@ p {
   background: #a00000;
 }
 
-/* Make input widths consistent */
-#search-input {
-  width: 200px;
+/* Time Filter Section */
+.filter-section {
+  margin: 1rem 2rem;
+  background: var(--light-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-#filter-dropdown {
-  width: 110px;
-  background: white
-    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
-    no-repeat right 0.75rem center/10px 10px;
+.time-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-@media (max-width: 992px) {
-  .header-filter-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+.time-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 
-  .all-controls {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
+.time-filter-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--background);
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.time-filter-btn:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+}
+
+.time-filter-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 /* Stats Summary */
@@ -708,38 +302,33 @@ p {
   color: var(--text);
 }
 
-/* Make the stats summary more responsive */
-@media (max-width: 768px) {
-  .stats-summary {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 1rem;
-  }
-}
-
-/* Time Filter Section */
-.filter-section {
+/* View Switcher */
+.view-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   margin: 1rem 2rem;
-  background: var(--light-bg);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  gap: 0.75rem;
 }
 
-.time-filter-group {
+.view-toggle-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.view-toggle-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.time-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.time-filter-btn {
-  padding: 0.5rem 1rem;
   border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   background: var(--background);
   border: 1px solid #e2e8f0;
   color: var(--text);
@@ -748,19 +337,378 @@ p {
   font-size: 0.9rem;
 }
 
-.time-filter-btn:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+.view-btn:first-child {
+  border-right: none;
+  border-radius: 6px 0 0 6px;
 }
 
-.time-filter-btn.active {
+.view-btn:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.view-btn.active {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
 }
 
-/* Responsive adjustment */
+.view-btn svg {
+  stroke-width: 2;
+}
+
+/* GRID VIEW - Default styling */
+.vulnerabilities-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* Card Styles - Default for Grid View */
+.vulnerability-card {
+  position: relative;
+  background: var(--light-bg) !important;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.vulnerability-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+}
+
+.vulnerability-card.severe::before {
+  background: #8b0000; /* Dark red */
+}
+.vulnerability-card.high::before {
+  background: #dc3545; /* Red */
+}
+.vulnerability-card.medium::before {
+  background: #ffc107;
+}
+.vulnerability-card.neutral::before {
+  background: #6c757d;
+}
+.vulnerability-card.exploited::before {
+  background: #dc2626;
+}
+
+.vulnerability-card h4 {
+  margin: 0 0 1.2rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.vuln-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.vuln-header h4 {
+  margin: 0;
+  flex: 1;
+}
+
+.severity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.severity-badge.severe {
+  background: #8b0000;
+}
+
+.severity-badge.high {
+  background: #dc3545;
+}
+
+.severity-badge.medium {
+  background: #ffc107;
+  color: #000;
+}
+
+.severity-badge.neutral {
+  background: #6c757d;
+}
+
+.stats-info {
+  margin-bottom: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  background: var(--background);
+  border-radius: 8px;
+}
+
+.stat-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.8rem;
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: #718096;
+  margin-bottom: 0.2rem;
+}
+
+.stat-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.meta-section {
+  margin-top: 1rem;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.status-badge.exploited {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.safe {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.has-advisory {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Date Info */
+.date-info {
+  margin: 0.8rem 0;
+  font-size: 0.85rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.date-info svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.packages-info {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* LIST VIEW STYLES - Clean horizontal layout */
+.vulnerabilities-list.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.vulnerabilities-list.list-view .vulnerability-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 2.5rem;
+  min-height: 120px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.vulnerabilities-list.list-view .vulnerability-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section - Left side */
+.vulnerabilities-list.list-view .vuln-header {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.vulnerabilities-list.list-view .vuln-header h4 {
+  font-size: 1.2rem;
+  color: var(--primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.vulnerabilities-list.list-view .severity-badge {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Stats Info - Center */
+.vulnerabilities-list.list-view .stats-info {
+  flex: 1;
+  margin: 0;
+}
+
+.vulnerabilities-list.list-view .stat-item {
+  padding: 0.6rem;
+  background: var(--background);
+  border-radius: 8px;
+}
+
+.vulnerabilities-list.list-view .stat-label {
+  font-size: 0.8rem;
+}
+
+.vulnerabilities-list.list-view .stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Meta Section - Right side */
+.vulnerabilities-list.list-view .meta-section {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: flex-end;
+  text-align: right;
+  margin: 0;
+}
+
+.vulnerabilities-list.list-view .status-badge {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.vulnerabilities-list.list-view .date-info {
+  margin: 0;
+  font-size: 0.9rem;
+  justify-content: flex-end;
+}
+
+.vulnerabilities-list.list-view .packages-info {
+  font-size: 0.8rem;
+  text-align: right;
+  max-width: 200px;
+  overflow: hidden;
+}
+
+/* Color coding for list view - left border */
+.vulnerabilities-list.list-view .vulnerability-card.severe {
+  border-left: 4px solid #8b0000;
+}
+
+.vulnerabilities-list.list-view .vulnerability-card.high {
+  border-left: 4px solid #dc3545;
+}
+
+.vulnerabilities-list.list-view .vulnerability-card.medium {
+  border-left: 4px solid #ffc107;
+}
+
+.vulnerabilities-list.list-view .vulnerability-card.neutral {
+  border-left: 4px solid #6c757d;
+}
+
+/* Remove top border in list view */
+.vulnerabilities-list.list-view .vulnerability-card::before {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .vulnerabilities-list.list-view .vulnerability-card {
+    gap: 1.5rem;
+    padding: 1.8rem 2rem;
+  }
+
+  .vulnerabilities-list.list-view .meta-section {
+    flex: 1.2;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .all-controls {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 768px) {
+  .header-filter-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .vulnerabilities-list {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .vulnerabilities-list.list-view .vulnerability-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .vulnerabilities-list.list-view .vuln-header {
+    width: 100%;
+  }
+
+  .vulnerabilities-list.list-view .stats-info {
+    width: 100%;
+  }
+
+  .vulnerabilities-list.list-view .meta-section {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
   .time-buttons {
     justify-content: center;
   }
@@ -774,48 +722,25 @@ p {
     margin: 1rem;
     justify-content: center;
   }
+
+  .stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 1rem;
+  }
 }
-.control-dropdown {
-  width: 150px;
-  padding: 0.7rem 1.2rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 6px;
-  background-color: var(--light-bg);
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+p {
   color: var(--text);
-  font-size: 0.95rem;
-  appearance: none;
-  transition: all 0.25s ease;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23800000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 10px 10px;
-}
-
-.control-dropdown:hover,
-.control-dropdown:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
-  outline: none;
-}
-
-.control-dropdown option {
-  background-color: var(--light-bg);
-  color: var(--text);
-  padding: 8px;
-}
-
-/* Make sure the label is properly styled too */
-.filter-group .filter-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-right: 0.5rem;
-  white-space: nowrap;
-}
-
-/* Style the filter group container */
-.filter-group {
-  display: flex;
-  align-items: center;
-  margin-right: 1rem;
 }

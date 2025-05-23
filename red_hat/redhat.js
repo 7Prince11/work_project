@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let originalVulnerabilities = [];
   let filteredVulnerabilities = [];
   let selectedTimeRange = "all"; // Default time range
+  let currentView = "grid"; // Default view mode
 
   document
     .getElementById("redhat-export-btn")
@@ -167,23 +168,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 20); // ~400ms total animation time
   }
 
-  // Render Vulnerabilities
+  // UNIFIED rendering for both views - same HTML structure, different CSS styling
   function renderVulnerabilities(vulnerabilities) {
     vulnerabilitiesListDiv.innerHTML = "";
     filteredVulnerabilities = vulnerabilities;
 
+    if (vulnerabilities.length === 0) {
+      vulnerabilitiesListDiv.innerHTML =
+        '<div class="vulnerability-card">No vulnerabilities found</div>';
+      return;
+    }
+
     vulnerabilities.forEach((vuln, index) => {
       const card = document.createElement("div");
-      card.className = "vulnerability-card";
+      card.className = `vulnerability-card ${vuln.severityCategory}`;
 
-      // Determine severity style
-      let severityClass = vuln.severityCategory || "neutral";
-
-      // If isExploited, override to "exploited"
-      if (vuln.isExploited) {
-        severityClass = "exploited";
+      // Adjust title length based on current view
+      let title = vuln.title;
+      if (currentView === "list" && title.length > 120) {
+        title = title.substring(0, 120) + "...";
+      } else if (currentView === "grid" && title.length > 80) {
+        title = title.substring(0, 80) + "...";
       }
-      card.classList.add(severityClass);
 
       // Status badge
       let badgeClass = "safe";
@@ -202,22 +208,19 @@ document.addEventListener("DOMContentLoaded", () => {
           ? "No Date Available"
           : new Date(vuln.date).toLocaleDateString();
 
+      // UNIFIED HTML STRUCTURE - works for both grid and list views
       card.innerHTML = `
-        <h4>${vuln.title}</h4>
-        <div class="stats-grid">
+        <div class="vuln-header">
+          <h4>${title}</h4>
+          <div class="severity-badge ${vuln.severityCategory}">
+            CVSS: ${vuln.baseScore}
+          </div>
+        </div>
+        
+        <div class="stats-info">
           <div class="stat-item">
             <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
-            </svg>
-            <div>
-              <div class="stat-label">CVSS Score</div>
-              <div class="stat-value">${vuln.baseScore}</div>
-            </div>
-          </div>
-          <div class="stat-item">
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2"/>
             </svg>
             <div>
               <div class="stat-label">Severity</div>
@@ -225,18 +228,25 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
         </div>
-        <div class="status-badge ${badgeClass}">${badgeText}</div>
-        <div class="date-info">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
-            <path d="M16 2v4M8 2v4M3 14h18"/>
-          </svg>
-          ${displayDate}
+        
+        <div class="meta-section">
+          <div class="status-badge ${badgeClass}">${badgeText}</div>
+          <div class="date-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
+              <path d="M16 2v4M8 2v4M3 14h18"/>
+            </svg>
+            ${displayDate}
+          </div>
+          <div class="packages-info">
+            <strong>ID:</strong> ${vuln.id}<br/>
+            <strong>Affected:</strong> ${
+              vuln.affectedPackages.length > 60
+                ? vuln.affectedPackages.substring(0, 60) + "..."
+                : vuln.affectedPackages
+            }
+          </div>
         </div>
-        <p style="margin-top: 1rem; font-size: 0.9rem;">
-          <strong>ID:</strong> ${vuln.id}<br/>
-          <strong>Affected Packages:</strong> ${vuln.affectedPackages}
-        </p>
       `;
 
       vulnerabilitiesListDiv.appendChild(card);
@@ -343,6 +353,29 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   }
 
+  // Handle view toggle
+  function setView(view) {
+    currentView = view;
+
+    // Update UI classes
+    if (view === "grid") {
+      vulnerabilitiesListDiv.classList.remove("list-view");
+      gridViewBtn.classList.add("active");
+      listViewBtn.classList.remove("active");
+    } else {
+      // "list"
+      vulnerabilitiesListDiv.classList.add("list-view");
+      listViewBtn.classList.add("active");
+      gridViewBtn.classList.remove("active");
+    }
+
+    // Re-render with the new view
+    renderVulnerabilities(filteredVulnerabilities);
+
+    // Save preference
+    localStorage.setItem("redhat-view-preference", view);
+  }
+
   // Handle time filter button clicks
   timeFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -363,29 +396,12 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", applyFilters);
 
   // Toggle between Grid and List
-  gridViewBtn.addEventListener("click", () => {
-    vulnerabilitiesListDiv.classList.remove("list-view");
-    gridViewBtn.classList.add("active");
-    listViewBtn.classList.remove("active");
-    localStorage.setItem("redhat-view-preference", "grid");
-  });
-
-  listViewBtn.addEventListener("click", () => {
-    vulnerabilitiesListDiv.classList.add("list-view");
-    listViewBtn.classList.add("active");
-    gridViewBtn.classList.remove("active");
-    localStorage.setItem("redhat-view-preference", "list");
-  });
+  gridViewBtn.addEventListener("click", () => setView("grid"));
+  listViewBtn.addEventListener("click", () => setView("list"));
 
   // Load saved view preference
   const savedView = localStorage.getItem("redhat-view-preference");
-  if (savedView === "list") {
-    vulnerabilitiesListDiv.classList.add("list-view");
-    listViewBtn.classList.add("active");
-    gridViewBtn.classList.remove("active");
-  } else {
-    vulnerabilitiesListDiv.classList.remove("list-view");
-    gridViewBtn.classList.add("active");
-    listViewBtn.classList.remove("active");
+  if (savedView) {
+    setView(savedView);
   }
 });

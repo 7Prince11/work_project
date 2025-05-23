@@ -95,7 +95,7 @@ body {
   right: 1.2rem;
 }
 
-/* Updated Control Panel Layout */
+/* Control Panel */
 .control-panel {
   display: flex;
   justify-content: space-between;
@@ -165,6 +165,20 @@ body {
   width: 200px;
   appearance: none;
   background-image: none;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  background-color: var(--light-bg);
+  color: var(--text);
+}
+
+#search-input:hover,
+#search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+  outline: none;
 }
 
 .export-button {
@@ -343,7 +357,7 @@ body {
   stroke-width: 2;
 }
 
-/* Vulnerability Grid */
+/* GRID VIEW - Default styling */
 .vulnerability-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -351,7 +365,7 @@ body {
   padding: 0 2rem 2rem;
 }
 
-/* Improved Card Design */
+/* Default Card Styles for Grid View */
 .vulnerability-card {
   background: var(--light-bg);
   border-radius: 12px;
@@ -403,7 +417,22 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.info-grid {
+.vuln-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.vuln-header h3 {
+  margin: 0;
+  padding: 0;
+  border: none;
+  flex: 1;
+}
+
+.info-section {
   display: flex;
   gap: 1rem;
   margin-bottom: 0.5rem;
@@ -448,6 +477,7 @@ body {
   font-size: 0.8rem;
   font-weight: 500;
   width: fit-content;
+  flex-shrink: 0;
 }
 
 .status-badge.ransomware {
@@ -465,13 +495,17 @@ body {
   color: #4b5563;
 }
 
+.meta-section {
+  margin-top: 0.5rem;
+}
+
 .date-info {
   font-size: 0.85rem;
   color: #718096;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .date-info svg {
@@ -487,46 +521,150 @@ body {
   margin-top: 0.5rem;
 }
 
-/* List view styles */
+/* LIST VIEW STYLES - Clean organized layout */
 .vulnerability-grid.list-view {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .vulnerability-grid.list-view .vulnerability-card {
   display: grid;
-  grid-template-columns: 2fr 5fr;
-  grid-template-areas:
-    "title title"
-    "info-grid description"
-    "status description"
-    "date description";
-  gap: 1rem;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  grid-template-areas: "header info meta";
+  gap: 2rem;
   align-items: start;
+  padding: 1.8rem 2.2rem;
+  min-height: 100px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-.vulnerability-grid.list-view .vulnerability-card h3 {
-  grid-area: title;
+.vulnerability-grid.list-view .vulnerability-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.vulnerability-grid.list-view .info-grid {
-  grid-area: info-grid;
+/* Header Section - Left */
+.vulnerability-grid.list-view .vuln-header {
+  grid-area: header;
+  display: flex;
   flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.vulnerability-grid.list-view .vuln-header h3 {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .vulnerability-grid.list-view .status-badge {
-  grid-area: status;
+  align-self: flex-start;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+}
+
+/* Info Section - Center */
+.vulnerability-grid.list-view .info-section {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.vulnerability-grid.list-view .info-box {
+  padding: 0.5rem 0.8rem;
+  background: var(--background);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 35px;
+}
+
+.vulnerability-grid.list-view .meta-icon {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.vulnerability-grid.list-view .info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.vulnerability-grid.list-view .info-label {
+  font-size: 0.7rem;
+  color: #718096;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.vulnerability-grid.list-view .info-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Meta Section - Right */
+.vulnerability-grid.list-view .meta-section {
+  grid-area: meta;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
 }
 
 .vulnerability-grid.list-view .date-info {
-  grid-area: date;
-  margin-top: 0;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }
 
-.vulnerability-grid.list-view .description {
-  grid-area: description;
-  margin-top: 0;
+.vulnerability-grid.list-view .description-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Color coding for list view - left border */
+.vulnerability-grid.list-view .vulnerability-card.ransomware {
+  border-left: 4px solid #dc3545;
+}
+
+.vulnerability-grid.list-view .vulnerability-card.safe {
+  border-left: 4px solid #28a745;
+}
+
+.vulnerability-grid.list-view .vulnerability-card.unknown {
+  border-left: 4px solid #6c757d;
+}
+
+/* Remove top border in list view */
+.vulnerability-grid.list-view .vulnerability-card::before {
+  display: none;
 }
 
 /* Loading Animation */
@@ -579,6 +717,21 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .vulnerability-grid.list-view .vulnerability-card {
+    gap: 1.5rem;
+    padding: 1.8rem 2rem;
+  }
+
+  .vulnerability-grid.list-view .meta-section {
+    flex: 1.2;
+  }
+
+  .vulnerability-grid.list-view .description-text {
+    max-width: 200px;
+  }
+}
+
 @media (max-width: 992px) {
   .control-panel {
     flex-direction: column;
@@ -588,7 +741,6 @@ body {
 
   .right-controls {
     width: 100%;
-    justify-content: space-between;
     flex-wrap: wrap;
   }
 }
@@ -605,13 +757,35 @@ body {
   }
 
   .vulnerability-grid.list-view .vulnerability-card {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "title"
-      "info-grid"
-      "status"
-      "date"
-      "description";
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .vulnerability-grid.list-view .vuln-header {
+    width: 100%;
+  }
+
+  .vulnerability-grid.list-view .info-section {
+    width: 100%;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .vulnerability-grid.list-view .meta-section {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .vulnerability-grid.list-view .date-info {
+    justify-content: flex-start;
+  }
+
+  .vulnerability-grid.list-view .description-text {
+    text-align: left;
+    max-width: none;
   }
 
   .time-buttons {

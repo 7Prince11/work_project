@@ -19,7 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let vulnerabilities = [];
   let originalVulnerabilities = [];
   let filteredVulnerabilities = [];
-  let selectedTimeRange = "all"; // Default time range
+  let selectedTimeRange = "all";
+  let currentView = "grid";
 
   document
     .getElementById("cisa-export-btn")
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Calculate date ranges based on selected time range
   const getDateRange = (range) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Start of today
+    today.setHours(0, 0, 0, 0);
 
     switch (range) {
       case "today":
@@ -59,8 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const sixMonthsAgo = new Date(today);
         sixMonthsAgo.setMonth(today.getMonth() - 6);
         return sixMonthsAgo;
-      default: // "all"
-        return null; // No date filtering
+      default:
+        return null;
     }
   };
 
@@ -71,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("http://localhost:3000/api/cisa")
       .then((response) => response.json())
       .then((data) => {
-        // Set "Last Updated" date/time
         lastFetchDateSpan.textContent = new Date().toLocaleString();
 
         vulnerabilities = data.map((vuln) => ({
@@ -111,12 +111,10 @@ document.addEventListener("DOMContentLoaded", () => {
       (acc, vuln) => {
         acc.total++;
 
-        // Count by ransomware status
         if (vuln.ransomwareCategory === "ransomware") acc.ransomware++;
         else if (vuln.ransomwareCategory === "safe") acc.safe++;
         else acc.unknown++;
 
-        // Count recent additions (last 30 days)
         if (vuln.dateAdded >= thirtyDaysAgo) acc.recent++;
 
         return acc;
@@ -124,7 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
       { total: 0, ransomware: 0, safe: 0, unknown: 0, recent: 0 }
     );
 
-    // Animate the counter changes
     animateNumber(totalVulns, stats.total);
     animateNumber(ransomwareCount, stats.ransomware);
     animateNumber(safeCount, stats.safe);
@@ -136,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function animateNumber(element, newValue) {
     const currentValue = parseInt(element.textContent) || 0;
     const diff = newValue - currentValue;
-    const steps = 20; // Number of animation steps
+    const steps = 20;
     const stepValue = diff / steps;
     let currentStep = 0;
 
@@ -149,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(interval);
         element.textContent = newValue;
       }
-    }, 20); // ~400ms total animation time
+    }, 20);
   }
 
   // Apply filters and sorting
@@ -190,14 +187,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Sort by date (newest first)
     result.sort((a, b) => b.dateAdded - a.dateAdded);
 
     renderVulnerabilities(result);
     updateStats(result);
   };
 
-  // Render vulnerability cards with improved design
+  // UNIFIED rendering for both views
   const renderVulnerabilities = (vulnList) => {
     container.innerHTML = "";
     filteredVulnerabilities = vulnList;
@@ -212,9 +208,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("div");
       card.className = `vulnerability-card ${vuln.ransomwareCategory}`;
 
-      // Truncate title if too long
+      // Adjust title length based on current view
       let title = vuln.vulnerabilityName || vuln.cveID;
-      if (title.length > 80) {
+      if (currentView === "list" && title.length > 100) {
+        title = title.substring(0, 100) + "...";
+      } else if (currentView === "grid" && title.length > 80) {
         title = title.substring(0, 80) + "...";
       }
 
@@ -227,49 +225,67 @@ document.addEventListener("DOMContentLoaded", () => {
         badgeText = "🛡️ No Ransomware";
       }
 
-      // Truncate description if available
+      // Description
       let description = vuln.shortDescription || "No description available.";
-      if (description.length > 150) {
+      if (currentView === "list" && description.length > 200) {
+        description = description.substring(0, 200) + "...";
+      } else if (currentView === "grid" && description.length > 150) {
         description = description.substring(0, 150) + "...";
       }
 
+      // UNIFIED HTML STRUCTURE
       card.innerHTML = `
-        <h3>${title}</h3>
+        <div class="vuln-header">
+          <h3>${title}</h3>
+          <div class="status-badge ${badgeClass}">${badgeText}</div>
+        </div>
         
-        <div class="info-grid">
+        <div class="info-section">
           <div class="info-box">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM12 19.5l-7-3.5V9.07l7 3.5 7-3.5V16l-7 3.5z"/>
             </svg>
-            <div class="info-label">Vendor</div>
-            <div class="info-value">${vuln.vendorProject || "Unknown"}</div>
+            <div class="info-content">
+              <div class="info-label">Vendor</div>
+              <div class="info-value">${vuln.vendorProject || "Unknown"}</div>
+            </div>
           </div>
           
           <div class="info-box">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
-            <div class="info-label">Product</div>
-            <div class="info-value">${vuln.product || "Unknown"}</div>
+            <div class="info-content">
+              <div class="info-label">Product</div>
+              <div class="info-value">${vuln.product || "Unknown"}</div>
+            </div>
           </div>
         </div>
         
-        <div class="status-badge ${badgeClass}">${badgeText}</div>
-        
-        <div class="date-info">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
-            <path d="M16 2v4M8 2v4M3 14h18"/>
-          </svg>
-          Added: ${vuln.dateAdded.toLocaleDateString()}
+        <div class="meta-section">
+          <div class="date-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 9h18V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10H3"/>
+              <path d="M16 2v4M8 2v4M3 14h18"/>
+            </svg>
+            Added: ${vuln.dateAdded.toLocaleDateString()}
+          </div>
+          
+          ${
+            description && currentView === "grid"
+              ? `<p class="description">${description}</p>`
+              : ""
+          }
+          ${
+            description && currentView === "list"
+              ? `<div class="description-text">${description}</div>`
+              : ""
+          }
         </div>
-        
-        ${description ? `<p class="description">${description}</p>` : ""}
       `;
 
       container.appendChild(card);
 
-      // Animation with delay
       setTimeout(() => {
         card.style.opacity = "1";
         card.style.transform = "translateY(0)";
@@ -284,7 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return alert("No data available to export!");
     }
 
-    // Define CSV headers
     const header = [
       "CVE ID",
       "Vulnerability Name",
@@ -295,7 +310,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "Required Action",
     ];
 
-    // Create CSV rows
     const rows = data.map((v) =>
       [
         v.cveID || "",
@@ -310,10 +324,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .join(",")
     );
 
-    // Combine headers and rows
     const csv = [header.join(","), ...rows].join("\r\n");
 
-    // Create download link
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -323,17 +335,31 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   }
 
+  // Handle view toggle
+  function setView(view) {
+    currentView = view;
+
+    if (view === "grid") {
+      container.classList.remove("list-view");
+      gridViewBtn.classList.add("active");
+      listViewBtn.classList.remove("active");
+    } else {
+      container.classList.add("list-view");
+      listViewBtn.classList.add("active");
+      gridViewBtn.classList.remove("active");
+    }
+
+    renderVulnerabilities(filteredVulnerabilities);
+    localStorage.setItem("cisa-view-preference", view);
+  }
+
   // Handle time filter button clicks
   timeFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      // Update active button
       timeFilterButtons.forEach((btn) => btn.classList.remove("active"));
       button.classList.add("active");
 
-      // Update selected time range
       selectedTimeRange = button.dataset.time;
-
-      // Apply filters with new time range
       applyFilters();
     });
   });
@@ -343,30 +369,13 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", applyFilters);
 
   // Toggle between Grid and List
-  gridViewBtn.addEventListener("click", () => {
-    container.classList.remove("list-view");
-    gridViewBtn.classList.add("active");
-    listViewBtn.classList.remove("active");
-    localStorage.setItem("cisa-view-preference", "grid");
-  });
-
-  listViewBtn.addEventListener("click", () => {
-    container.classList.add("list-view");
-    listViewBtn.classList.add("active");
-    gridViewBtn.classList.remove("active");
-    localStorage.setItem("cisa-view-preference", "list");
-  });
+  gridViewBtn.addEventListener("click", () => setView("grid"));
+  listViewBtn.addEventListener("click", () => setView("list"));
 
   // Load saved view preference
   const savedView = localStorage.getItem("cisa-view-preference");
-  if (savedView === "list") {
-    container.classList.add("list-view");
-    listViewBtn.classList.add("active");
-    gridViewBtn.classList.remove("active");
-  } else {
-    container.classList.remove("list-view");
-    gridViewBtn.classList.add("active");
-    listViewBtn.classList.remove("active");
+  if (savedView) {
+    setView(savedView);
   }
 
   // Initial Load
