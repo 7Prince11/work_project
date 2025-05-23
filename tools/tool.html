@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Tools | University Security Hub</title>
+    <link rel="stylesheet" href="cyber_tools.css">
+    <script src="../theme.js"></script>
+    <link rel="stylesheet" href="../style.css" />
+
+    <link rel="icon" href="data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+  <circle cx='50' cy='50' r='50' fill='%23800000'/>
+  <path d='M50 15 L75 30 L75 60 C75 70 65 80 50 85 C35 80 25 70 25 60 L25 30 Z' fill='%23ffffff'/>
+  <path d='M44 40 L56 40 L56 55 L44 55 Z' fill='none' stroke='%23800000' stroke-width='3'/>
+  <path d='M38 35 L62 35 M38 60 L62 60' stroke='%23800000' stroke-width='3'/>
+  <circle cx='50' cy='47' r='3' fill='%23800000'/>
+</svg>" type="image/svg+xml" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="back-button-container">
+            <a href="index.html" class="back-button">Back to Main Page</a>
+        </div>
+        <h1>Cybersecurity Analysis Tools</h1>
+    </header>
+
+    <main class="main-container">
+        <!-- Introduction Section -->
+        <section class="intro-section">
+            <div class="intro-card">
+                <h2>Security Analysis Toolkit</h2>
+                <p>Use these tools to analyze suspicious files, check IP addresses, or verify if your accounts have been
+                    compromised in data breaches. All analysis is performed securely through trusted third-party
+                    services.</p>
+            </div>
+        </section>
+
+        <!-- Tools Grid -->
+        <div class="tools-grid">
+            <!-- VirusTotal Tool -->
+            <section class="tool-card virustotal">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+                            <path d="M12 22v-5M22 7l-10 5-10-5M12 12v5" />
+                        </svg>
+                    </div>
+                    <div class="tool-title">
+                        <h3>VirusTotal Analysis</h3>
+                        <p>Check files, URLs, or hashes for malware</p>
+                    </div>
+                </div>
+                <div class="tool-content">
+                    <div class="input-group">
+                        <div class="input-tabs">
+                            <button class="tab-btn active" data-tab="file">File</button>
+                            <button class="tab-btn" data-tab="url">URL</button>
+                            <button class="tab-btn" data-tab="hash">Hash</button>
+                        </div>
+                        <div class="tab-content active" id="file-tab">
+                            <form id="file-form">
+                                <div class="file-upload">
+                                    <label for="file-input" class="file-label">
+                                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M12 15V3M7 8l5-5 5 5M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                        </svg>
+                                        <span>Drop file or click to upload</span>
+                                        <small>(Max size: 32MB)</small>
+                                    </label>
+                                    <input type="file" id="file-input" class="hidden-input">
+                                </div>
+                                <button type="submit" class="submit-btn">Analyze File</button>
+                            </form>
+                        </div>
+                        <div class="tab-content" id="url-tab">
+                            <form id="url-form">
+                                <input type="url" placeholder="Enter URL to scan" required>
+                                <button type="submit" class="submit-btn">Analyze URL</button>
+                            </form>
+                        </div>
+                        <div class="tab-content" id="hash-tab">
+                            <form id="hash-form">
+                                <input type="text" placeholder="Enter MD5, SHA-1 or SHA-256 hash" required>
+                                <button type="submit" class="submit-btn">Analyze Hash</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="result-container" id="vt-results">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+                                <path d="M12 22v-5M22 7l-10 5-10-5M12 12v5" />
+                            </svg>
+                            <p>Submit a file, URL, or hash to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shodan Tool -->
+            <section class="tool-card shodan">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            <path d="M2 12h20" />
+                        </svg>
+                    </div>
+                    <div class="tool-title">
+                        <h3>Shodan Intelligence</h3>
+                        <p>Discover exposed devices and services</p>
+                    </div>
+                </div>
+                <div class="tool-content">
+                    <div class="input-group">
+                        <form id="shodan-form">
+                            <input type="text" placeholder="Enter IP address, hostname, or search query" required>
+                            <button type="submit" class="submit-btn">Search Shodan</button>
+                        </form>
+                    </div>
+                    <div class="result-container" id="shodan-results">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                <path d="M2 12h20" />
+                            </svg>
+                            <p>Enter an IP address or hostname to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HIBP Tool -->
+            <section class="tool-card hibp">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <div class="tool-title">
+                        <h3>Have I Been Pwned</h3>
+                        <p>Check if your accounts were compromised</p>
+                    </div>
+                </div>
+                <div class="tool-content">
+                    <div class="input-group">
+                        <form id="hibp-form">
+                            <input type="email" placeholder="Enter email address" required>
+                            <button type="submit" class="submit-btn">Check Breaches</button>
+                        </form>
+                    </div>
+                    <div class="result-container" id="hibp-results">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                            <p>Enter an email address to check for data breaches</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DNS Lookup Tool -->
+            <section class="tool-card dns">
+                <div class="tool-header">
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 2.5l2 2-2 2 2 2-2 2" />
+                            <path d="M3 12.5h12.5" />
+                            <path d="M17 12.5l2 2-2 2 2 2-2 2" />
+                            <path d="M3 22.5h12.5" />
+                            <path d="M3 2.5h2v20h-2z" />
+                        </svg>
+                    </div>
+                    <div class="tool-title">
+                        <h3>DNS Lookup</h3>
+                        <p>Analyze domain name system records</p>
+                    </div>
+                </div>
+                <div class="tool-content">
+                    <div class="input-group">
+                        <form id="dns-form">
+                            <input type="text" placeholder="Enter domain name" required>
+                            <div class="record-types">
+                                <label><input type="checkbox" value="A" checked> A</label>
+                                <label><input type="checkbox" value="AAAA" checked> AAAA</label>
+                                <label><input type="checkbox" value="MX" checked> MX</label>
+                                <label><input type="checkbox" value="TXT" checked> TXT</label>
+                                <label><input type="checkbox" value="NS" checked> NS</label>
+                            </div>
+                            <button type="submit" class="submit-btn">Lookup DNS</button>
+                        </form>
+                    </div>
+                    <div class="result-container" id="dns-results">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M17 2.5l2 2-2 2 2 2-2 2" />
+                                <path d="M3 12.5h12.5" />
+                                <path d="M17 12.5l2 2-2 2 2 2-2 2" />
+                                <path d="M3 22.5h12.5" />
+                                <path d="M3 2.5h2v20h-2z" />
+                            </svg>
+                            <p>Enter a domain name to perform DNS lookup</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Usage Info Section -->
+        <section class="usage-section">
+            <div class="usage-card">
+                <h3>Important Information</h3>
+                <p>These tools use third-party services to analyze security information. No data is stored on our
+                    servers, but usage of these services is subject to their respective terms of service and privacy
+                    policies:</p>
+                <ul>
+                    <li><a href="https://www.virustotal.com/gui/terms-of-service" target="_blank">VirusTotal Terms of
+                            Service</a></li>
+                    <li><a href="https://www.shodan.io/legal/tos" target="_blank">Shodan Terms of Service</a></li>
+                    <li><a href="https://haveibeenpwned.com/Privacy" target="_blank">Have I Been Pwned Privacy
+                            Policy</a></li>
+                </ul>
+                <p class="disclaimer">These tools are provided for educational purposes. Always exercise caution when
+                    analyzing potentially malicious content.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 University Security Hub. All rights reserved.</p>
+            <p>For educational purposes only.</p>
+        </div>
+    </footer>
+
+    <script src="cyber_tools.js"></script>
+</body>
+
+</html>

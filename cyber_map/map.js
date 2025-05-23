@@ -5,7 +5,7 @@
   // Map configuration
   const MAP_CENTER = [20, 0];
   const MAP_ZOOM = 1.5;
-  const MAX_ATTACKS = 100;
+  const MAX_ATTACKS = 75;
   const ATTACK_DURATION = 3000; // milliseconds
 
   // Initialize map
