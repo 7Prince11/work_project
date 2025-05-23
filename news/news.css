@@ -43,23 +43,29 @@ body.dark-mode {
 }
 
 .header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
   position: relative;
 }
-
+.left-side {
+  min-width: 180px; /* Adjust as needed */
+}
 .header h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   color: white;
-  font-size: 1.75rem;
+  font-size: 2rem;
   margin: 0;
   font-weight: 600;
   letter-spacing: -0.5px;
   text-align: center;
-  flex: 1;
+  flex: 0 1 auto;
+}
+.right-side {
+  min-width: 180px; /* This creates balance with left-side */
 }
 
 .header-badge {
@@ -695,7 +701,7 @@ body.dark-mode .loading-spinner {
 .loader span {
   width: 10px;
   height: 10px;
-  background: var(--primary);
+  background: white !important;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out both;
 }
@@ -775,8 +781,7 @@ body.dark-mode .loading-spinner {
 
 @media (max-width: 768px) {
   .header-content {
-    flex-direction: column;
-    gap: 1rem;
+    flex-direction: row; /* Keep as row to maintain left/right positioning */
     text-align: center;
   }
 
@@ -785,9 +790,8 @@ body.dark-mode .loading-spinner {
   }
 
   .back-button {
-    width: 100%;
+    width: auto;
   }
-
   .hero-content h2 {
     font-size: 1.5rem;
   }
@@ -811,6 +815,9 @@ body.dark-mode .loading-spinner {
 
   .results-container {
     padding: 1rem;
+  }
+  .header h1 {
+    font-size: 1.4rem; /* Slightly smaller on mobile */
   }
 }
 
