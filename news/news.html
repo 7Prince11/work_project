@@ -22,19 +22,38 @@
 
 <body>
     <header class="header">
-        <div class="back-button-container">
+        <div class="header-content">
             <button id="back-button" class="back-button" onclick="goBack()">
-                ← Back to Main
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Back to Main</span>
             </button>
+            <h1>Cybersecurity News Hub</h1>
+
         </div>
-        <h1>Cybersecurity News</h1>
     </header>
 
     <main class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h2>Stay Ahead of Cyber Threats</h2>
+                <p>Real-time cybersecurity news and threat intelligence</p>
+            </div>
+        </div>
+
         <!-- Control Panel -->
         <div class="control-panel">
-            <div class="filter-group">
-                <label for="time-filter" class="control-label">Time Range:</label>
+            <div class="control-group">
+                <label for="time-filter" class="control-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Time Range
+                </label>
                 <select id="time-filter" class="control-dropdown">
                     <option value="week">Last Week</option>
                     <option value="month">Last Month</option>
@@ -42,8 +61,15 @@
                 </select>
             </div>
 
-            <div class="filter-group">
-                <label for="sort-dropdown" class="control-label">Sort By:</label>
+            <div class="control-group">
+                <label for="sort-dropdown" class="control-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Sort By
+                </label>
                 <select id="sort-dropdown" class="control-dropdown">
                     <option value="date">Date</option>
                     <option value="source">Source</option>
@@ -54,30 +80,56 @@
 
         <!-- Analysis Section -->
         <div class="analysis-section">
-            <button id="compare-button" class="analysis-button">
-                Analyze Trending Topics
-                <svg class="analysis-icon" viewBox="0 0 24 24">
-                    <path
-                        d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.92 6-4.72 7.28l-1.43-2.34c1.94-1.16 3.15-3.29 3.15-5.64 0-3.31-2.69-6-6-6H8.17l4.01 4.01-1.41 1.42L3.9 4.9 10.76 12l-1.42 1.4L8.17 11h2.81c-2.21 0-4 1.79-4 4 0 1.2.54 2.34 1.46 3.11l-1.45 2.49C4.46 18.48 3 15.86 3 13c0-4.61 3.54-8.43 8-8.94V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 5.52 0 10-4.48 10-10 0-5.19-3.95-9.45-9-9.95z" />
-                </svg>
-            </button>
+            <div class="analysis-card">
+                <div class="analysis-header">
+                    <h3>Threat Intelligence</h3>
+                    <div class="pulse-indicator"></div>
+                </div>
+                <p class="analysis-description">Discover trending topics and emerging threats in the cybersecurity
+                    landscape</p>
+                <button id="compare-button" class="analysis-button">
+                    <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M7 16L12 11L15 14L21 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span>Analyze Trending Topics</span>
+                    <div class="button-glow"></div>
+                </button>
+            </div>
         </div>
 
-        <!-- Results Sections -->
-        <div class="results-grid">
-            <div id="trending-topics" class="trending-card">
-                <div class="card-header">
+        <!-- Results Section -->
+        <div class="results-container">
+            <aside id="trending-topics" class="trending-sidebar">
+                <div class="sidebar-header">
                     <h3>Trending Analysis</h3>
-                    <div class="status-indicator"></div>
+                    <div class="status-dot"></div>
                 </div>
-                <p class="analysis-prompt">Click on "Analyze Trending Topic" button</p>
-            </div>
+                <div class="sidebar-content">
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                            <path
+                                d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2" />
+                            <path d="M9 12H15M9 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <p>Click "Analyze Trending Topics" to discover insights</p>
+                    </div>
+                </div>
+            </aside>
 
-            <div id="news-container" class="news-grid">
-                <div class="loading-animation"></div>
-            </div>
+            <section id="news-container" class="news-section">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Loading latest news...</p>
+                </div>
+            </section>
         </div>
     </main>
+
     <script>
         function goBack() {
             window.history.back();
