@@ -38,16 +38,13 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 .header-content {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
   align-items: center;
-
-  max-width: 1920px;
-  margin: 0 auto;
 }
 
 .header h1 {
@@ -119,7 +116,7 @@ body {
 /* Map Container */
 .map-container {
   position: fixed;
-  top: 70px;
+  top: 60px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -127,6 +124,7 @@ body {
   grid-template-columns: 1fr 380px;
   grid-template-rows: auto 1fr;
   gap: 0;
+  height: calc(100vh - 60px);
 }
 
 /* Stats Panel */
@@ -134,7 +132,7 @@ body {
   grid-column: 1 / -1;
   display: flex;
   gap: 1.5rem;
-  margin-top: 3.5em;
+  margin-top: 4em;
   padding: 1rem 2rem;
   background: var(--panel-bg);
   border-bottom: 1px solid var(--border-color);
@@ -144,7 +142,7 @@ body {
   flex: 1;
   background: var(--card-bg);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 0.5rem;
   display: flex;
   align-items: center;
   gap: 1.5rem;
